@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7F6F2" />
+  <title>Campus Twin</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/studio-editorial.css" />
+</head>
+<body class="studio" data-screen="map" data-left="closed" data-right="open">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Campus Twin home">
+      <span class="brand-mark">CT</span>
+      <span class="brand-name">Campus Twin</span>
+    </a>
+    <span class="site-name" id="building-name"></span>
+    <span class="sr-only" id="building-sub"></span>
+
+    <div class="search" role="search">
+      <input id="search" type="search" placeholder="Search rooms, people or facilities..." autocomplete="off" maxlength="100" aria-label="Search rooms" aria-controls="results" />
+      <kbd class="search-kbd">/</kbd>
+      <ul id="results" class="results hidden" role="listbox"></ul>
+    </div>
+
+    <div class="filters">
+      <div id="chips" class="chips" role="toolbar" aria-label="Facility filters"></div>
+      <button id="emergency" class="btn-emergency" type="button">Emergency</button>
+        <a class="builder-shortcut" href="builder.html">Edit floor plan</a>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside class="rail" id="left-panel" aria-label="Floors">
+      <ol id="level-list" class="level-list"></ol>
+    </aside>
+    <div class="resize-handle resize-left" role="separator" aria-label="Resize floors sidebar" aria-orientation="vertical" aria-controls="left-panel" tabindex="0"></div>
+
+    <main class="stage" id="stage">
+      <div class="hero-copy" id="hero-copy">
+        <h1>Find<br />your space</h1>
+        <p>Explore floors, search rooms and find facilities across the building.</p>
+      </div>
+      <div id="viewport-3d" class="viewport" aria-label="3D building view"></div>
+      <div id="viewport-plan" class="viewport plan hidden" aria-label="2D floor plan"></div>
+      <div class="sheet-tag mono" id="sheet-tag"></div>
+      <nav id="floor-stack" class="floor-stack" aria-label="Floors"></nav>
+      <div class="walk-hint mono hidden" id="walk-hint">Drag to look · Tap a room to move · Keyboard: WASD / arrows</div>
+
+      <div id="emergency-banner" class="emergency-banner hidden" role="status">
+        <strong>Emergency</strong>
+        <p>Indicative exit route for this sample building. Follow on-site wardens. This is not a live evacuation system.</p>
+        <button id="emergency-off" class="btn" type="button">Dismiss</button>
+      </div>
+
+      <section class="route-card hidden" id="route-card" aria-live="polite">
+        <header>
+          <span class="route-kind" id="route-kind">Route</span>
+          <button class="close" id="route-close" type="button" aria-label="Clear route">×</button>
+        </header>
+        <h4 id="route-title"></h4>
+        <p class="route-meta" id="route-meta"></p>
+        <p class="route-note">The shortest mapped route is indicative. Person and lift movement are simulated; no live occupancy feed is connected.</p>
+        <ol id="route-steps" class="route-steps"></ol>
+      </section>
+
+      <div class="seg view-toggle" role="tablist" aria-label="View" id="view-switch">
+        <button role="tab" data-view="orbit" aria-selected="true" title="3D model (2)">3D<kbd>2</kbd></button>
+        <button role="tab" data-view="plan" aria-selected="false" title="2D floor plan (1)">2D<kbd>1</kbd></button>
+        <button role="tab" data-view="walk" aria-selected="false" title="Walk (3)">Walk<kbd>3</kbd></button>
+      </div>
+      <div class="model-tools" id="model-tools" role="toolbar" aria-label="3D camera controls">
+        <button class="icon-btn" id="model-zoom-in" type="button" aria-label="Zoom in on building" title="Zoom in on building"></button>
+        <button class="icon-btn" id="model-zoom-out" type="button" aria-label="Zoom out from building" title="Zoom out from building"></button>
+        <button class="icon-btn" id="model-reset" type="button" aria-label="Reset building camera" title="Reset building camera"></button>
+        <button class="icon-btn" id="model-overview" type="button" aria-label="Show all floors" title="Show all floors"></button>
+      </div>
+      <div class="compass" role="img" aria-label="Compass: north, east, south, west"><span class="compass-rose"><span class="north">N</span><span class="east">E</span><span class="south">S</span><span class="west">W</span></span></div>
+      <p class="disclaimer">This is a sample building for demonstration. Room availability and routing are not live.</p>
+      <footer class="title-block mono" id="title-block">
+        <div><span>PROJECT</span><strong id="tb-project"></strong></div>
+        <div><span>LEVEL</span><strong id="tb-level"></strong></div>
+        <div><span>VIEW</span><strong id="tb-view"></strong></div>
+        <div class="tb-action"><span>LAST ACTION</span><strong id="tb-action">—</strong></div>
+      </footer>
+      <div id="loading" class="loading"><div class="spinner"></div><span>Loading the building…</span></div>
+    </main>
+
+    <div class="resize-handle resize-right" role="separator" aria-label="Resize details sidebar" aria-orientation="vertical" aria-controls="right-panel" tabindex="0"></div>
+    <aside class="context" id="right-panel" aria-label="Floor and room">
+      <button id="sheet-close" class="sheet-close" type="button" aria-label="Close room details">×</button>
+      <div class="context-head">
+        <div>
+          <h2 id="floor-title">Floor</h2>
+          <p id="floor-blurb" class="floor-blurb">Explore rooms and facilities on this floor.</p>
+        </div>
+        <a id="floor-qr-link" class="qr-link" href="qr.html">
+          <span><strong>Floor QR code</strong><small>View all rooms on this floor</small></span>
+        </a>
+      </div>
+      <div class="context-columns">
+        <div class="context-overview">
+          <div class="plan-card">
+        <div id="plan-preview" class="viewport" aria-label="Floor plan preview"></div>
+        <div class="plan-tools" id="plan-tools">
+          <button class="icon-btn" id="zoom-in" type="button" aria-label="Zoom in">+</button>
+          <button class="icon-btn" id="zoom-out" type="button" aria-label="Zoom out">−</button>
+          <button class="icon-btn" id="zoom-fit" type="button" aria-label="Fit to screen">⤢</button>
+        </div>
+      </div>
+          <div class="section-head">
+        <h3>Spaces on this floor <span id="dir-count"></span></h3>
+        <button id="view-all-spaces" class="linkish" type="button">View all →</button>
+      </div>
+          <div id="spaces" class="spaces"></div>
+        </div>
+        <div class="context-inspector">
+      <div id="details"></div>
+      <div class="actions">
+        <button id="share" class="btn btn-primary" type="button">Share room link</button>
+        <button id="view-plan" class="btn" type="button">View on floor plan</button>
+      </div>
+      <div class="section-head"><h3>Nearby spaces</h3></div>
+      <ul id="nearby" class="nearby"></ul>
+      <details class="ask-fold">
+        <summary>Ask the building</summary>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-tab="agent" aria-selected="true">Agent</button>
+          <button role="tab" data-tab="details" aria-selected="false">Notes</button>
+          <button role="tab" data-tab="checks" aria-selected="false">Checks <span id="checks-count"></span></button>
+          <button role="tab" data-tab="activity" aria-selected="false">Activity</button>
+        </div>
+        <section class="tab-panel" id="tab-agent" role="tabpanel">
+          <div id="chat-log" class="chat-log" aria-live="polite"></div>
+          <form id="chat-form" class="chat-form" autocomplete="off">
+            <input id="chat-input" type="text" maxlength="500" placeholder="Ask about rooms or facilities…" aria-label="Message the agent" />
+            <button class="btn btn-primary" type="submit">Send</button>
+          </form>
+        </section>
+        <section class="tab-panel" id="tab-details" role="tabpanel" hidden>
+          <p class="muted">Room facts from the sample dataset appear above. Nothing here is live availability.</p>
+        </section>
+        <section class="tab-panel" id="tab-checks" role="tabpanel" hidden>
+          <div class="checks-head">
+            <div id="checks-summary" class="checks-summary"></div>
+            <button id="run-checks" class="btn" type="button">Run checks</button>
+          </div>
+          <ul id="checks-list" class="checks-list"></ul>
+          <h3>Space schedule</h3>
+          <table class="schedule" id="schedule"></table>
+        </section>
+        <section class="tab-panel" id="tab-activity" role="tabpanel" hidden>
+          <p class="muted">Changes from you or an agent use the same tools.</p>
+          <ol id="activity" class="activity"></ol>
+        </section>
+        <h3>Workflows</h3>
+        <ul id="workflow-list" class="workflow-list"></ul>
+        <div class="meta-sink">
+          <span id="webmcp-pill" class="pill" title="WebMCP status"><span class="dot"></span><span id="webmcp-text">WebMCP</span></span>
+          <span id="status-selection">No room selected</span>
+          <span id="status-here"></span>
+          <span id="status-issues"></span>
+          <span id="status-metrics"></span>
+          <span id="status-tools"></span>
+          <a href="builder.html">Edit sample floor</a>
+        </div>
+      </details>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="rooms-screen" aria-label="Rooms">
+    <h2>Rooms</h2>
+    <ul id="directory" class="directory"></ul>
+  </section>
+  <section class="qr-screen" id="qr-screen" aria-label="Floor QR">
+    <h2 id="qr-floor-title">Floor</h2>
+    <p class="muted">Scan to open this floor and browse every room on it.</p>
+    <div class="qr-stage">
+      <div id="floor-qr-code" class="qr-code"></div>
+      <strong>Scan to explore this floor</strong>
+      <p class="muted" id="qr-place"></p>
+      <a id="print-qr" class="btn btn-primary" href="qr.html">Print this QR code</a>
+      <p class="muted">This QR code links to a sample floor. It does not represent live room availability.</p>
+    </div>
+  </section>
+  <section class="more-screen" aria-label="More">
+    <h2>More</h2>
+    <p class="muted">Sample workplace twin. Availability and routing are illustrative.</p>
+    <p><a class="btn btn-primary" href="builder.html">Open floor editor</a></p>
+    <p><a id="more-qr" href="qr.html">Printable floor QR</a></p>
+  </section>
+  <nav class="tabbar" aria-label="Primary">
+    <button type="button" data-screen="map" aria-current="page"><span class="tab-icon" aria-hidden="true">⌂</span><span>Map</span></button>
+    <button type="button" data-screen="rooms"><span class="tab-icon" aria-hidden="true">▤</span><span>Rooms</span></button>
+    <button type="button" data-screen="qr"><span class="tab-icon" aria-hidden="true">▦</span><span>Floor QR</span></button>
+    <button type="button" data-screen="more"><span class="tab-icon" aria-hidden="true">•••</span><span>More</span></button>
+  </nav>
+  <div class="sr-only">
+    <button id="toggle-left" type="button" aria-label="Directory">Directory</button>
+    <button id="toggle-right" type="button" aria-label="Toggle inspector">Inspector</button>
+  </div>
+  <footer class="statusbar"><span>status</span></footer>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script type="module" src="js/app/studio.js"></script>
+</body>
+</html>

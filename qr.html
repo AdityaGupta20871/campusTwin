@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Printable QR codes – 3D Floor Guide</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1b2a4a; margin: 24px; }
+    header { display: grid; gap: 10px; max-width: 720px; margin-bottom: 24px; }
+    input[type="url"] { width: 100%; padding: 8px 10px; font-size: 15px; }
+    button { padding: 10px 16px; font-weight: 700; background: #e4002b; color: #fff; border: 0; border-radius: 8px; cursor: pointer; justify-self: start; }
+    .hint { color: #5b6475; font-size: 13px; margin: 0; }
+    #sheet { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .card { margin: 0; border: 1px solid #cfd6e3; border-radius: 12px; padding: 14px; text-align: center; break-inside: avoid; }
+    .card.main { grid-column: 1 / -1; max-width: 320px; }
+    .code svg { width: 100%; height: auto; }
+    figcaption strong { display: block; font-size: 15px; }
+    figcaption span { display: block; color: #5b6475; font-size: 13px; }
+    figcaption small { display: block; margin-top: 6px; font-size: 9px; color: #8a93a3; word-break: break-all; }
+    @media print {
+      .no-print { display: none; }
+      body { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="no-print">
+    <h1>Printable QR codes</h1>
+    <label>
+      Public URL of the 3D map (after deployment)
+      <input id="base" type="url" />
+    </label>
+    <p class="hint">Room QR codes open the map with a "You are here" pin. Stick each one at that location.</p>
+    <label><input id="per-room" type="checkbox" checked /> Include one QR per room</label>
+    <button id="print">Print</button>
+  </header>
+  <main id="sheet"></main>
+
+  <script type="module">
+    import { building } from "./building-data.js";
+
+    const base = document.getElementById("base");
+    const perRoom = document.getElementById("per-room");
+    const sheet = document.getElementById("sheet");
+    base.value = new URL("./index.html", location.href).toString();
+
+    function qrSvg(text) {
+      const qr = qrcode(0, "M");
+      qr.addData(text);
+      qr.make();
+      return qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    }
+
+    function card(title, subtitle, url, className = "card") {
+      const fig = document.createElement("figure");
+      fig.className = className;
+      const code = document.createElement("div");
+      code.className = "code";
+      code.innerHTML = qrSvg(url);
+      const cap = document.createElement("figcaption");
+      const t = document.createElement("strong");
+      t.textContent = title;
+      const s = document.createElement("span");
+      s.textContent = subtitle;
+      const u = document.createElement("small");
+      u.textContent = url;
+      cap.append(t, s, u);
+      fig.append(code, cap);
+      return fig;
+    }
+
+    function render() {
+      let root;
+      try {
+        root = new URL(base.value);
+        if (!["http:", "https:"].includes(root.protocol)) throw new Error();
+      } catch {
+        sheet.textContent = "Enter a valid http(s) URL.";
+        return;
+      }
+      root.search = "";
+      root.hash = "";
+
+      sheet.replaceChildren(card(building.name, "Scan to open the 3D floor guide", root.toString(), "card main"));
+      if (!perRoom.checked) return;
+
+      for (const floor of building.floors) {
+        for (const room of floor.rooms) {
+          const url = new URL(root);
+          url.searchParams.set("here", room.id);
+          sheet.appendChild(card(room.name, `${floor.name} – you are here`, url.toString()));
+        }
+      }
+    }
+
+    base.addEventListener("input", render);
+    perRoom.addEventListener("change", render);
+    document.getElementById("print").addEventListener("click", () => window.print());
+    render();
+  </script>
+</body>
+</html>

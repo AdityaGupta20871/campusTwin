@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Printable QR codes – Campus Twin</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/qr.css" />
+</head>
+<body class="qr-page">
+  <header class="qr-head no-print">
+    <a class="brand" href="./"><span class="brand-mark">CT</span><span>Campus Twin</span><span class="brand-sub">QR placards</span></a>
+    <label>
+      <span class="eyebrow">Public URL of the studio (after deployment)</span>
+      <input id="base" type="url" />
+    </label>
+    <p class="muted small">Room QR codes open the studio with a “You are here” pin. Print and stick each one at that location.</p>
+    <div class="qr-actions">
+      <label><input id="per-room" type="checkbox" checked /> Include one QR per room</label>
+      <button id="print" class="btn btn-primary" type="button">Print</button>
+    </div>
+  </header>
+  <main id="sheet" class="qr-sheet"></main>
+  <script type="module" src="js/app/qr.js"></script>
+</body>
+</html>

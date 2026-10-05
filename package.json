@@ -1,0 +1,44 @@
+{
+  "name": "campus-twin-agent",
+  "version": "1.0.0",
+  "description": "Human + Agent workplace twin for Sopra Steria Noida: 3D/2D wayfinding studio, built-in concierge agent, WebMCP and MCP tool servers.",
+  "private": true,
+  "workspaces": [
+    "src/packages/*",
+    "src/apps/*"
+  ],
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "npm run dev:web",
+    "dev:web": "npm run dev --workspace=@campus-twin/web",
+    "build:web": "npm run build --workspace=@campus-twin/web",
+    "serve": "npm run build:web && node src/server/static-server.mjs",
+    "mcp": "npm run build:mcp && npm run start --workspace=@campus-twin/mcp-server",
+    "api": "npm run build:api && npm run start --workspace=@campus-twin/api",
+    "pretest": "npm run build:apps",
+    "pretest:integration": "npm run build:apps",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "pretest:unit": "npm run build:core",
+    "test:unit": "node --test \"tests/unit/*.test.mjs\"",
+    "test:integration": "node --test \"tests/integration/*.test.mjs\"",
+    "test:coverage": "node --test --experimental-test-coverage \"tests/**/*.test.mjs\"",
+    "catalog": "node src/mcp/print-catalog.mjs",
+    "precatalog": "npm run build:core",
+    "build:core": "npm run build --workspace=@campus-twin/core",
+    "build:mcp": "npm run build:core && npm run build --workspace=@campus-twin/mcp-server",
+    "build:api": "npm run build:core && npm run build --workspace=@campus-twin/api",
+    "build:apps": "npm run build:core && npm run build --workspace=@campus-twin/mcp-server && npm run build --workspace=@campus-twin/api && npm run build:web",
+    "typecheck": "npm run typecheck --workspace=@campus-twin/core && npm run typecheck --workspace=@campus-twin/mcp-server && npm run typecheck --workspace=@campus-twin/api"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0"
+  }
+}

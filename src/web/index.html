@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101318" />
+  <meta name="description" content="Campus Twin – a human + agent workplace twin for Sopra Steria Noida. 2D plan, 3D orbit and walk mode driven by typed agent tools (WebMCP + MCP)." />
+  <title>Campus Twin – Human + Agent Workplace Twin</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+</head>
+<body class="landing">
+  <header class="nav">
+    <a class="brand" href="./"><span class="brand-mark">CT</span><span>Campus Twin</span><span class="brand-sub">Sopra Steria · Noida</span></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#loop">Agent loop</a>
+      <a href="#tools">Tools</a>
+      <a href="#workflows">Workflows</a>
+      <a href="#surfaces">Surfaces</a>
+      <a href="builder.html">Floor editor</a>
+      <a href="qr.html">QR codes</a>
+    </nav>
+    <a class="btn btn-primary" href="studio.html">Open studio</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Human + Agent workplace twin</p>
+        <h1>Ask the building.<br /><span>Let an agent walk you there.</span></h1>
+        <p class="lede">
+          A live 2D + 3D twin of the Noida office that people and AI agents operate together.
+          Find rooms, route across floors, evacuate safely and validate the layout — through one set of
+          typed, guard-railed tools shared by the studio, browser agents (WebMCP) and IDE agents (MCP).
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary btn-lg" href="studio.html">Enter the live studio</a>
+          <a class="btn btn-ghost btn-lg" href="builder.html">Edit floor plan</a>
+          <a class="btn btn-ghost btn-lg" id="ask-cta" href="studio.html?ask=Where%20is%20the%20IT%20helpdesk%3F">Ask the agent →</a>
+        </div>
+        <dl class="stats" id="stats"></dl>
+      </div>
+
+      <figure class="drawing" aria-label="Live axonometric drawing of the building">
+        <div class="drawing-head mono">
+          <span>SHEET A-001 · AXONOMETRIC</span>
+          <span class="live"><i></i>LIVE MODEL</span>
+        </div>
+        <svg id="iso" class="iso" role="img" aria-label="Exploded axonometric model of the building with an agent route"></svg>
+        <div class="layers mono" role="group" aria-label="Drawing layers" id="layers">
+          <button type="button" data-layer="plan" aria-pressed="true">Plan</button>
+          <button type="button" data-layer="structure" aria-pressed="true">Structure</button>
+          <button type="button" data-layer="route" aria-pressed="true">Route</button>
+          <button type="button" data-layer="dims" aria-pressed="true">Dims</button>
+        </div>
+        <figcaption class="ticker mono" aria-live="polite">
+          <div class="ticker-head"><span>AGENT TRACE</span><button type="button" id="replay" class="link">replay</button></div>
+          <ol id="ticker"></ol>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="loop">
+      <p class="eyebrow">How the agent thinks</p>
+      <h2>Perceive → Plan → Act → Observe → Respond</h2>
+      <p class="section-lede">Every capability is a typed tool with a JSON schema and a read-only hint. The built-in concierge, a browser agent and an IDE agent all call the same tools through one executor — so every action is validated, attributed and visible on the shared canvas.</p>
+      <ol class="loop">
+        <li><span class="mono">01 · Perceive</span><h3>Understand the ask</h3><p>Normalise the message and read context: where you are, what is on screen.</p></li>
+        <li><span class="mono">02 · Plan</span><h3>Pick a skill</h3><p>Match an intent — route, nearest facility, meeting fit, evacuation, workflow, checks.</p></li>
+        <li><span class="mono">03 · Act</span><h3>Call typed tools</h3><p>Inputs are schema-validated at the boundary; unknown tools and bad ids are rejected.</p></li>
+        <li><span class="mono">04 · Observe</span><h3>Read structured results</h3><p>Tools return envelopes with data or typed error codes — never stack traces.</p></li>
+        <li><span class="mono">05 · Respond</span><h3>Show, don’t tell</h3><p>The route appears on the plan and in 3D, with a full tool trace in the activity log.</p></li>
+      </ol>
+      <dl class="glossary">
+        <div><dt>Agent</dt><dd>Software that decides which actions to take to reach a goal, then takes them.</dd></div>
+        <div><dt>Tool</dt><dd>A named, typed capability the agent can call (e.g. <code>get_directions</code>).</dd></div>
+        <div><dt>Workflow</dt><dd>A predefined multi-step journey the agent runs end-to-end (e.g. new-joiner day 1).</dd></div>
+        <div><dt>MCP / WebMCP</dt><dd>Open protocols that let any compatible AI client discover and call these tools.</dd></div>
+        <div><dt>Guardrail</dt><dd>Schema validation, read-only hints, input caps and life-safety rules (no lifts in a fire).</dd></div>
+        <div><dt>Human-in-the-loop</dt><dd>People and agents edit the same state; every action is attributed and reversible.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="tools">
+      <p class="eyebrow">Tool surface</p>
+      <h2 id="tools-title">Typed agent tools</h2>
+      <div class="tool-grid" id="tool-grid"></div>
+    </section>
+
+    <section class="section" id="workflows">
+      <p class="eyebrow">Workflows</p>
+      <h2>Multi-stop journeys, one prompt</h2>
+      <div class="workflow-grid" id="workflow-grid"></div>
+    </section>
+
+    <section class="section" id="surfaces">
+      <p class="eyebrow">One model, three surfaces</p>
+      <h2>Wherever the agent lives</h2>
+      <div class="surface-grid">
+        <article><span class="mono">STUDIO</span><h3>People</h3><p>2D floor plan, 3D orbit and first-person walk mode with the built-in concierge agent. Works offline, no sign-in.</p><a href="studio.html">Open studio →</a></article>
+        <article><span class="mono">WEBMCP</span><h3>Browser agents</h3><p>The studio registers its tools with <code>navigator.modelContext</code>, so in-browser AI agents can drive the live canvas.</p><a href="studio.html">Try it →</a></article>
+        <article><span class="mono">MCP · STDIO</span><h3>IDE &amp; desktop agents</h3><p><code>npm run mcp</code> exposes the headless tools to GitHub Copilot, Claude Desktop and other MCP clients.</p><a href="https://modelcontextprotocol.io" rel="noopener noreferrer">About MCP →</a></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer mono">
+    <span>AI BY DESIGN · AGENTATHON 2026</span>
+    <span id="footer-building"></span>
+    <span>Indicative wayfinding — not a certified life-safety system.</span>
+  </footer>
+
+  <script type="module" src="js/app/landing.js"></script>
+</body>
+</html>

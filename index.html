@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b2a4a" />
+  <title>3D Floor Guide</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <h1 id="building-name"></h1>
+      <p id="building-subtitle"></p>
+    </div>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search e.g. cafeteria, IT helpdesk" autocomplete="off" aria-label="Search rooms" />
+      <ul id="results" class="results hidden"></ul>
+    </div>
+    <div id="chips" class="chips"></div>
+  </header>
+
+  <main id="viewer" aria-label="3D building map"></main>
+  <nav id="floors" class="floors" aria-label="Floors"></nav>
+
+  <section id="info" class="sheet hidden" aria-live="polite">
+    <button id="info-close" class="close" aria-label="Close">&times;</button>
+    <span id="info-type" class="badge"></span>
+    <h2 id="info-name"></h2>
+    <p id="info-floor" class="muted"></p>
+    <p id="info-desc"></p>
+    <dl id="info-meta"></dl>
+    <p id="info-directions" class="directions"></p>
+    <button id="info-share" class="primary">Share this location</button>
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="loading" class="loading">Loading 3D map…</div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
