@@ -231,12 +231,12 @@
 .hero-visual {
   position: relative;
   margin: 0;
-  padding-top: 26px;
+  padding-top: 96px;
 }
 
 .hero-image {
-  aspect-ratio: 294 / 380;
-  width: min(100%, 470px);
+  aspect-ratio: 864 / 724;
+  width: min(100%, 620px);
   margin-left: auto;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%);
@@ -254,7 +254,7 @@
 .ask-card {
   position: absolute;
   top: 0;
-  right: 18%;
+  right: 22%;
   display: grid;
   gap: 10px;
   width: min(62%, 300px);
@@ -316,19 +316,6 @@
   height: 30px;
 }
 
-/* Trusted strip */
-.trusted {
-  display: flex;
-  justify-content: center;
-  padding: 8px var(--gutter) 40px;
-}
-
-.trusted img {
-  width: min(100%, 700px);
-  height: auto;
-  mix-blend-mode: multiply;
-}
-
 /* Split sections */
 .split {
   display: grid;
@@ -368,13 +355,13 @@
 }
 
 .split-media.devices {
-  max-width: 540px;
+  max-width: 620px;
   justify-self: end;
 }
 
 .split-media.photo {
   justify-self: center;
-  max-width: 480px;
+  max-width: 600px;
   overflow: hidden;
   border-radius: 16px;
   box-shadow: 0 20px 48px rgba(16, 40, 80, 0.16);
@@ -566,7 +553,7 @@
 .cta-media {
   justify-self: end;
   align-self: stretch;
-  width: min(100%, 460px);
+  width: 100%;
   height: 100%;
   min-height: 240px;
   object-fit: cover;
@@ -641,7 +628,7 @@
   }
 
   .hero-visual {
-    max-width: 470px;
+    max-width: 620px;
     margin: 0 auto;
   }
 
