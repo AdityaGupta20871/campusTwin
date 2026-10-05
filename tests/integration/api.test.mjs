@@ -12,6 +12,11 @@ const azureConfig = {
   },
 };
 
+const openAIConfig = {
+  ...DEFAULT_API_CONFIG,
+  openAI: { apiKey: "test-key", model: "gpt-4o-mini" },
+};
+
 const functionCall = (id) => ({
   id,
   type: "function",
@@ -124,6 +129,44 @@ describe("agent API", () => {
     }
   });
 
+  test("uses standard OpenAI for the shared tool catalog", async () => {
+    const requests = [];
+    const client = {
+      chat: { completions: { create: async (request) => {
+        requests.push(request);
+        if (requests.length === 1) {
+          return { choices: [{ message: { role: "assistant", content: null, tool_calls: [functionCall("call-1")] } }] };
+        }
+        return { choices: [{ message: { role: "assistant", content: "The building has five floors.", tool_calls: null } }] };
+      } } },
+    };
+    const app = await createApiServer({ config: openAIConfig, openAIClient: client, logger: false });
+    try {
+      assert.equal((await app.inject({ method: "GET", url: "/api/health" })).json().provider, "openai");
+      const response = await app.inject({ method: "POST", url: "/api/agent/chat", payload: { message: "How many floors?" } });
+      const body = response.json();
+      assert.equal(body.provider, "openai");
+      assert.equal(body.reply.text, "The building has five floors.");
+      assert.equal(body.trace[0].tool, "get_building_overview");
+      assert.equal(requests[0].model, "gpt-4o-mini");
+      assert.ok(requests[0].tools.some((tool) => tool.function.name === "get_building_overview"));
+    } finally {
+      await app.close();
+    }
+  });
+
+  test("falls back deterministically when standard OpenAI is unavailable", async () => {
+    const client = { chat: { completions: { create: async () => { throw new Error("simulated upstream failure"); } } } };
+    const app = await createApiServer({ config: openAIConfig, openAIClient: client, logger: false });
+    try {
+      const response = await app.inject({ method: "POST", url: "/api/agent/chat", payload: { message: "Nearest restroom" } });
+      assert.equal(response.json().provider, "deterministic");
+      assert.ok(response.json().trace.some((entry) => entry.tool === "find_nearest"));
+    } finally {
+      await app.close();
+    }
+  });
+
   test("caps tool executions at six per chat", async () => {
     let requestCount = 0;
     const client = {
@@ -164,5 +207,9 @@ describe("agent API", () => {
     assert.equal(loadApiConfig({ AZURE_OPENAI_API_KEY: "", AZURE_OPENAI_ENDPOINT: "" }).azureOpenAI, null);
     assert.throws(() => loadApiConfig({ AZURE_OPENAI_API_KEY: "test-key" }), /requires an endpoint, API key, and deployment/);
     assert.equal(loadApiConfig({ HOST: "0.0.0.0", PORT: "8080" }).port, 8080);
+    assert.deepEqual(loadApiConfig({ OPENAI_API_KEY: "test-key", OPENAI_MODEL: "gpt-4o-mini" }).openAI, { apiKey: "test-key", model: "gpt-4o-mini" });
+    assert.throws(() => loadApiConfig({ OPENAI_API_KEY: "test-key" }), /requires an API key and model/);
+    assert.throws(() => loadApiConfig({ OPENAI_MODEL: "gpt-4o-mini" }), /requires an API key and model/);
+    assert.throws(() => loadApiConfig({ OPENAI_API_KEY: "test-key", OPENAI_MODEL: "gpt-4o-mini", AZURE_OPENAI_API_KEY: "azure-key", AZURE_OPENAI_ENDPOINT: "https:\/\/sample-resource.openai.azure.com", AZURE_OPENAI_DEPLOYMENT: "test" }), /not both/);
   });
 });

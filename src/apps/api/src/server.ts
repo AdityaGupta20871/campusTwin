@@ -3,7 +3,7 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import { z } from "zod";
 import { MAX_MESSAGE_LENGTH } from "@campus-twin/core";
-import { createAzureOpenAIClient, respondToAgentMessage, type AzureChatClient } from "./agent.js";
+import { createAzureOpenAIClient, createOpenAIClient, respondToAgentMessage, type AzureChatClient } from "./agent.js";
 import { DEFAULT_API_CONFIG, type ApiConfig } from "./config.js";
 
 const ChatRequestSchema = z.strictObject({
@@ -14,6 +14,7 @@ const ChatRequestSchema = z.strictObject({
 export interface ApiServerOptions {
   config?: ApiConfig;
   azureClient?: AzureChatClient | null;
+  openAIClient?: AzureChatClient | null;
   logger?: FastifyServerOptions["logger"];
   rateLimitMax?: number;
 }
@@ -21,10 +22,14 @@ export interface ApiServerOptions {
 export async function createApiServer({
   config = DEFAULT_API_CONFIG,
   azureClient,
+  openAIClient,
   logger = false,
   rateLimitMax = 60,
 }: ApiServerOptions = {}): Promise<FastifyInstance> {
-  const client = azureClient === undefined ? createAzureOpenAIClient(config.azureOpenAI) : azureClient;
+  const provider = config.openAI ? "openai" : "azure-openai";
+  const client = config.openAI
+    ? (openAIClient === undefined ? createOpenAIClient(config.openAI) : openAIClient)
+    : (azureClient === undefined ? createAzureOpenAIClient(config.azureOpenAI) : azureClient);
   const app = Fastify({ logger, bodyLimit: 32 * 1024 });
 
   await app.register(helmet);
@@ -32,7 +37,7 @@ export async function createApiServer({
 
   app.get("/api/health", async () => ({
     status: "ok",
-    provider: client ? "azure-openai" : "deterministic",
+    provider: client ? provider : "deterministic",
   }));
 
   app.post("/api/agent/chat", async (request, reply) => {
@@ -49,9 +54,10 @@ export async function createApiServer({
 
     return respondToAgentMessage(parsed.data.message, {
       client,
-      deployment: config.azureOpenAI?.deployment,
+      model: config.openAI?.model ?? config.azureOpenAI?.deployment,
+      provider,
       hereRoomId: parsed.data.hereRoomId,
-      onAzureError: () => request.log.warn("Azure OpenAI request failed; using deterministic fallback."),
+      onProviderError: () => request.log.warn("AI provider request failed; using deterministic fallback."),
     });
   });
 

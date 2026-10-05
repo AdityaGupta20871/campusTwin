@@ -7,6 +7,8 @@ const EnvironmentSchema = z.object({
   apiKey: z.string().min(1).optional(),
   deployment: z.string().min(1).optional(),
   apiVersion: z.string().min(1).default("2024-10-21"),
+  openAIKey: z.string().min(1).optional(),
+  openAIModel: z.string().min(1).optional(),
 });
 
 export interface AzureOpenAIConfig {
@@ -20,6 +22,7 @@ export interface ApiConfig {
   host: string;
   port: number;
   azureOpenAI: AzureOpenAIConfig | null;
+  openAI: { apiKey: string; model: string } | null;
 }
 
 function optionalValue(value: string | undefined): string | undefined {
@@ -35,12 +38,20 @@ export function loadApiConfig(environment: Record<string, string | undefined>): 
     apiKey: optionalValue(environment.AZURE_OPENAI_API_KEY),
     deployment: optionalValue(environment.AZURE_OPENAI_DEPLOYMENT),
     apiVersion: optionalValue(environment.AZURE_OPENAI_API_VERSION),
+    openAIKey: optionalValue(environment.OPENAI_API_KEY),
+    openAIModel: optionalValue(environment.OPENAI_MODEL),
   });
 
   const azureValues = [parsed.endpoint, parsed.apiKey, parsed.deployment];
   const azureConfigured = azureValues.every((value): value is string => Boolean(value));
   if (azureValues.some(Boolean) && !azureConfigured) {
     throw new Error("Azure OpenAI requires an endpoint, API key, and deployment together.");
+  }
+  if (Boolean(parsed.openAIKey) !== Boolean(parsed.openAIModel)) {
+    throw new Error("OpenAI requires an API key and model together.");
+  }
+  if (azureConfigured && parsed.openAIKey) {
+    throw new Error("Configure either OpenAI or Azure OpenAI, not both.");
   }
 
   return {
@@ -53,6 +64,9 @@ export function loadApiConfig(environment: Record<string, string | undefined>): 
           deployment: parsed.deployment!,
           apiVersion: parsed.apiVersion,
         }
+      : null,
+    openAI: parsed.openAIKey && parsed.openAIModel
+      ? { apiKey: parsed.openAIKey, model: parsed.openAIModel }
       : null,
   };
 }

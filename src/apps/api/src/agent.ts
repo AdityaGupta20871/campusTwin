@@ -1,4 +1,4 @@
-import { AzureOpenAI } from "openai";
+import OpenAI, { AzureOpenAI } from "openai";
 import type {
   ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
@@ -19,7 +19,7 @@ export const MAX_TOOL_CALLS = 6;
 const SYSTEM_PROMPT =
   "You are the Campus Twin workplace concierge. Use the provided tools for building facts, room searches, and directions. Never invent room data. The included building layout is illustrative sample data, not a verified floor plan; emergency routes are not certified life-safety guidance. Answer concisely and disclose when a tool cannot find information.";
 
-export type AzureChatClient = Pick<AzureOpenAI, "chat">;
+export type AzureChatClient = Pick<OpenAI, "chat">;
 
 export type ClientAction =
   | { type: "set_my_location"; roomId: string }
@@ -33,7 +33,7 @@ export interface ChatApiResponse {
   reply: AgentReply;
   trace: AgentTraceEntry[];
   clientActions: ClientAction[];
-  provider: "azure-openai" | "deterministic";
+  provider: "azure-openai" | "openai" | "deterministic";
 }
 
 export function createAzureOpenAIClient(config: AzureOpenAIConfig | null): AzureChatClient | null {
@@ -46,6 +46,11 @@ export function createAzureOpenAIClient(config: AzureOpenAIConfig | null): Azure
     timeout: 30_000,
     maxRetries: 1,
   });
+}
+
+export function createOpenAIClient(config: { apiKey: string; model: string } | null): AzureChatClient | null {
+  if (!config) return null;
+  return new OpenAI({ apiKey: config.apiKey, timeout: 30_000, maxRetries: 1 });
 }
 
 function toClientActions(response: Pick<AgentResponse, "reply" | "trace">): ClientAction[] {
@@ -115,11 +120,11 @@ function createToolCatalog(executor: ToolExecutor): ChatCompletionTool[] {
   }));
 }
 
-async function completeWithAzure(
+async function completeWithProvider(
   message: string,
   executor: ToolExecutor,
   client: AzureChatClient,
-  deployment: string,
+  model: string,
 ): Promise<AgentResponse> {
   const messages: ChatCompletionMessageParam[] = [
     { role: "system", content: SYSTEM_PROMPT },
@@ -131,20 +136,20 @@ async function completeWithAzure(
 
   for (let round = 0; round < MAX_TOOL_CALLS; round += 1) {
     const completion = await client.chat.completions.create({
-      model: deployment,
+      model,
       messages,
       tools,
       tool_choice: "auto",
     });
     const assistantMessage = completion.choices[0]?.message;
-    if (!assistantMessage) throw new Error("Azure OpenAI returned no assistant message.");
+    if (!assistantMessage) throw new Error("AI provider returned no assistant message.");
 
     const functionCalls = assistantMessage.tool_calls?.filter(
       (call): call is ChatCompletionMessageFunctionToolCall => call.type === "function",
     ) ?? [];
     if (!functionCalls.length) {
       const text = assistantMessage.content?.trim() || assistantMessage.refusal?.trim();
-      if (!text) throw new Error("Azure OpenAI returned an empty response.");
+      if (!text) throw new Error("AI provider returned an empty response.");
       return { intent: "chat" as AgentResponse["intent"], reply: { text }, trace };
     }
 
@@ -208,21 +213,22 @@ export async function respondToAgentMessage(
   message: string,
   options: {
     client?: AzureChatClient | null;
-    deployment?: string;
+    model?: string;
+    provider?: "azure-openai" | "openai";
     hereRoomId?: string;
-    onAzureError?: () => void;
+    onProviderError?: () => void;
   } = {},
 ): Promise<ChatApiResponse> {
-  if (!options.client || !options.deployment) {
+  if (!options.client || !options.model) {
     return toApiResponse(await deterministicResponse(message, options.hereRoomId), "deterministic");
   }
 
   try {
     const runtime = createRequestRuntime(options.hereRoomId);
-    const response = await completeWithAzure(message, runtime.executor, options.client, options.deployment);
-    return toApiResponse(response, "azure-openai");
+    const response = await completeWithProvider(message, runtime.executor, options.client, options.model);
+    return toApiResponse(response, options.provider ?? "azure-openai");
   } catch {
-    options.onAzureError?.();
+    options.onProviderError?.();
     return toApiResponse(await deterministicResponse(message, options.hereRoomId), "deterministic");
   }
 }

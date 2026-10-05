@@ -13,7 +13,7 @@ Complete this section if the agent is nominated by a team.
 As a fresher, finding my way around a large campus was hard. With towers of 10, 17 or 19 floors, everyday questions meant walking and asking around: where is the stationery counter, which floor has the medical room, where is the lab I need for testing, which lift goes there? Printed floor maps were outdated or missing, and every new joiner had to learn the same routes the hard way. Employees, visitors and facilities teams face the same problem, and room directories or static maps do not let them ask naturally or plan a multi-stop visit. The building layout in this project is illustrative sample data, not a verified Sopra Steria floor plan.
 
 ## 2. Proposed Agent
-Campus Twin Concierge is a workplace wayfinding agent connected to a 2D/3D building model. Anyone can **build** a campus floor by floor in the Floor Builder, **publish** it as a share link and QR code, and let others **navigate** it in 3D. A user can ask for a room, route, facility, meeting space, or predefined journey. The implemented local agent is deterministic and runs without credentials; it calls validated tools and can present map actions in the studio. A separate Fastify API offers the same deterministic fallback and optional server-side Azure OpenAI tool calling when approved credentials are configured; no AI key is needed for the demo.
+Campus Twin Concierge is a workplace wayfinding agent connected to a 2D/3D building model. Anyone can **build** a campus floor by floor in the Floor Builder, **publish** it as a share link and QR code, and let others **navigate** it in 3D. A user can ask for a room, route, facility, meeting space, or predefined journey. The implemented local agent is deterministic and runs without credentials; it calls validated tools and can present map actions in the studio. A separate Fastify API offers the same deterministic fallback and optional server-side OpenAI or Azure OpenAI tool calling when approved credentials are configured; no AI key is needed for the demo.
 
 ## 3. Key Capabilities
 - Build a campus model floor by floor (rooms, labs, medical room, stationery, pantries, lifts, stairs) in the Floor Builder.
@@ -31,10 +31,10 @@ Freshers and new joiners, office employees, visitors, reception and facilities t
 A facilities or team member builds the campus in the Floor Builder and clicks **Publish & share**; the model is validated, compressed and placed in the link after `#model=`. Anyone who opens the link or scans the QR code gets the same building in the studio. The local concierge classifies the request, selects a tool sequence, validates each tool input, and executes it against the building model. The studio can apply presentation actions such as selecting a room or drawing a route. It tries the optional API first and falls back to its local agent if the API is unavailable. Browser agents can use the WebMCP bridge where supported. IDE clients can use the official SDK-backed stdio MCP server, which exposes the TypeScript core's headless tools but does not control an open browser tab. The browser still uses its JavaScript runtime during migration. Responses include a concise result and tool trace.
 
 ## 6. Technology / Framework
-Current implementation: Node.js 22 ESM, Vite, browser JavaScript, HTML/CSS, Three.js, Fastify, Node's built-in test runner, a strict TypeScript core with Zod v4, and the official MCP SDK over stdio. The browser UI/runtime still use JavaScript during migration. Azure OpenAI integration is implemented as optional server-side configuration; no external LLM service is connected by default.
+Current implementation: Node.js 22 ESM, Vite, browser JavaScript, HTML/CSS, Three.js, Fastify, Node's built-in test runner, a strict TypeScript core with Zod v4, and the official MCP SDK over stdio. The browser UI/runtime still use JavaScript during migration. OpenAI and Azure OpenAI integrations are optional server-side configurations; no external LLM service is connected by default.
 
 ## 7. Tools / Integrations
-The local tool catalog covers inspection, room search, wayfinding, workflows, layout validation, metrics, and browser presentation. Current integrations are the optional Fastify chat API, browser WebMCP bridge, and SDK-backed stdio and stateless HTTP MCP transports. The Floor Builder supports local draft editing, deterministic command chat, JSON import/export, and publishing a share link/QR code; headless MCP tools accept and return drafts without writing to a browser tab. Azure OpenAI is optional, not connected by default. No live occupancy service, identity provider, or verified floor-plan source is connected.
+The local tool catalog covers inspection, room search, wayfinding, workflows, layout validation, metrics, and browser presentation. Current integrations are the optional Fastify chat API, browser WebMCP bridge, and SDK-backed stdio and stateless HTTP MCP transports. The Floor Builder supports local draft editing, deterministic command chat, JSON import/export, and publishing a share link/QR code; headless MCP tools accept and return drafts without writing to a browser tab. OpenAI or Azure OpenAI is optional, not connected by default. No live occupancy service, identity provider, or verified floor-plan source is connected.
 
 ## 8. Expected Business Value
 The agent is intended to reduce manual room-finding effort for new joiners, let any team publish and update its own campus map without design tools or hosting a database, make visitor journeys easier to explain, and provide a reusable example of agent/tool/workflow concepts. Benefits have not been measured; no time or cost savings are claimed.
@@ -60,7 +60,7 @@ flowchart LR
   WebMCP --> Executor
   Studio -. optional request .-> Api[Fastify chat API]
   Api --> TsCore
-  Api -. optional configured provider .-> Azure[Azure OpenAI]
+  Api -. optional configured provider .-> Provider[OpenAI or Azure OpenAI]
 ```
 
 ## 11. Effort Spent in Hrs
@@ -70,7 +70,7 @@ To be completed by the submitting representative. Development hours are not curr
 A published share link and QR code for a user-built campus model, which opens the building in 3D for anyone with the link. A room or facility answer with floor information, indicative route steps, and an optional route or room selection in the studio. Inspection and workflow requests return structured summaries and a trace of the tools used. A stdio MCP client receives structured, headless tool results; it does not automatically update the studio UI. Example: `get_directions` to `3-it` returns a sample Reception-to-IT Helpdesk route via lift. See [README.md](README.md#five-minute-demo) for the live demo and annotated screenshots.
 
 ## 13. Data / Security Considerations
-The included layout is synthetic sample data and must not be used for operational navigation or emergency response. Do not add personal data, access credentials, or real security-sensitive floor plans without authorization. The browser agent and MCP server require no secrets. Optional Azure credentials must remain server-side and use approved identity/configuration; never commit or upload secrets. Production authentication/authorization is not implemented. Tool inputs are validated and unknown internal errors are masked by the executor. Published links carry the full layout, so anyone with a link can see it; share links for real buildings only with authorized people. Incoming links are size-limited, validated, and stripped of unknown fields before the model is loaded. Why there is no database or user store yet, and the proposed design, are in [section 16](#16-data-storage-users-and-identity).
+The included layout is synthetic sample data and must not be used for operational navigation or emergency response. Do not add personal data, access credentials, or real security-sensitive floor plans without authorization. The browser agent and MCP server require no secrets. Optional OpenAI or Azure credentials must remain server-side and use approved identity/configuration; never commit or upload secrets. Production authentication/authorization is not implemented. Tool inputs are validated and unknown internal errors are masked by the executor. Published links carry the full layout, so anyone with a link can see it; share links for real buildings only with authorized people. Incoming links are size-limited, validated, and stripped of unknown fields before the model is loaded. Why there is no database or user store yet, and the proposed design, are in [section 16](#16-data-storage-users-and-identity).
 
 ## 14. Feature Inventory
 Everything below is implemented in this repository unless marked *planned*.
@@ -95,7 +95,7 @@ Everything below is implemented in this repository unless marked *planned*.
 
 **Concierge agent**
 - Deterministic offline agent that understands help, navigate, nearest facility, meeting room, floor listing, set location, workflow, emergency, layout check, metrics, overview, switch view and clear requests.
-- Optional Fastify API (`/api/agent/chat`) with the same deterministic fallback and optional Azure OpenAI tool calling.
+- Optional Fastify API (`/api/agent/chat`) with the same deterministic fallback and optional OpenAI or Azure OpenAI tool calling.
 - The browser tries the API first and falls back to the local agent.
 
 **Floor Builder – build a campus** (`builder.html`)
@@ -121,7 +121,7 @@ Everything below is implemented in this repository unless marked *planned*.
 - All tool inputs validated against schemas; untrusted text rendered as text, never HTML.
 
 ## 15. Agent Instructions
-These are the operating instructions for any agent (local concierge, Azure OpenAI, MCP or WebMCP client) working with Campus Twin.
+These are the operating instructions for any agent (local concierge, OpenAI, Azure OpenAI, MCP or WebMCP client) working with Campus Twin.
 
 **Role.** You are the Campus Twin workplace concierge. Help people find rooms and facilities, plan routes and journeys, and help authors build and publish a campus model.
 

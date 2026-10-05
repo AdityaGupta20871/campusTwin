@@ -2,6 +2,8 @@
 
 Campus Twin is a human-and-agent workplace wayfinding prototype. The studio combines a building directory, 2D/3D views, a deterministic offline concierge, reusable tools, workflows, and MCP/WebMCP prototypes. The included Noida layout is explicitly illustrative sample data and is not a verified floor plan.
 
+**Live demo:** [campustwin.vercel.app](https://campustwin.vercel.app/) (sample data; no sign-in or API key needed).
+
 ## Why This Exists
 As a fresher, finding my way around a large campus was hard. With towers of 10, 17 or 19 floors, simple questions took a lot of walking and asking around: where is the stationery counter, which floor has the medical room, where is the lab I need for testing, which lift goes there? Printed floor maps were outdated or missing, and every new joiner had to learn the same routes the hard way.
 
@@ -14,14 +16,14 @@ Campus Twin turns that knowledge into something anyone can create and share:
 A fresher can then scan a QR code at reception and ask “Where is the medical room?” instead of wandering between floors.
 
 ## Status
-The browser studio is bundled with Vite and still uses its JavaScript runtime. A parallel strict TypeScript core powers the stdio MCP server and a Fastify chat API with deterministic fallback and optional Azure OpenAI integration. Browser presentation and MCP tools are separate: an MCP call does not move the map in an open browser tab. The browser does not yet share the TypeScript core, and production authentication, approved building data, and deployment are not implemented. See [docs/architecture.md](docs/architecture.md) for the current boundary.
+The browser studio is bundled with Vite and still uses its JavaScript runtime. A parallel strict TypeScript core powers the stdio MCP server and a Fastify chat API with deterministic fallback and optional OpenAI or Azure OpenAI integration. Browser presentation and MCP tools are separate: an MCP call does not move the map in an open browser tab. The browser does not yet share the TypeScript core. The static web app is deployed, but production authentication, approved building data, and a deployed chat API are not implemented. See [docs/architecture.md](docs/architecture.md) for the current boundary.
 
 ## Prerequisites
 - Node.js 22 or newer
 - npm (included with Node.js)
 - A modern browser for the studio
 
-No AI API key is needed for the browser concierge, the local MCP server, or the API's deterministic fallback. Azure OpenAI is optional and requires approved server-side configuration; never place a key in browser code or the submission.
+No AI API key is needed for the browser concierge, the local MCP server, or the API's deterministic fallback. OpenAI is optional and requires an account and approved server-side configuration; never place a key in browser code or the submission.
 
 ## Install and Run
 From the project root:
@@ -57,7 +59,37 @@ Use a desktop browser for the presentation; the layout also supports tablet and 
 6. For the optional MCP portion, use an MCP-capable client configured as below. Its headless `get_directions` call returns route data; it does **not** change the map in an already open browser tab.
 
 ### Screenshots
-These are local captures of the illustrative demo, saved under [docs/screenshots](docs/screenshots). They are not verified floor plans or live occupancy data.
+These captures of the illustrative demo are saved under [docs/screenshots](docs/screenshots). None depict a verified floor plan or live occupancy data. The first seven show the deployed site; the final three document local interactions.
+
+**Deployed landing page:** Desktop hero and entry points to the Studio.
+
+![Deployed Campus Twin landing page on desktop](docs/screenshots/landing-desktop.png)
+
+**Deployed landing page on a narrow screen:** Entry points reflow into a single column.
+
+![Deployed Campus Twin landing page at a narrow viewport](docs/screenshots/landing-mobile.png)
+
+**Deployed Floor Builder:** Edit floors, spaces, dimensions, and room details.
+
+![Deployed Floor Builder with the Ground Floor plan and room editor](docs/screenshots/builder-desktop.png)
+
+**Deployed 3D Studio:** Floors, room directory, and selected room details.
+
+![Deployed Studio showing a 3D floor overview and Meeting Room 2.01](docs/screenshots/studio-deployed.png)
+
+**Deployed 2D plan:** Floor 2 in plan view with room details alongside it.
+
+![Deployed Studio showing Floor 2 as a 2D plan](docs/screenshots/studio-plan.png)
+
+**Deployed mobile Studio:** 3D map, floor selector, view switch, and bottom navigation.
+
+![Deployed Studio at a narrow viewport with the 3D map](docs/screenshots/studio-deployed-mobile.png)
+
+**Deployed printable QR:** The code opens the public Studio URL, not a specific published model.
+
+![Deployed printable QR page for the sample Studio URL](docs/screenshots/qr-deployed.png)
+
+**Local interaction captures**
 
 **Desktop studio:** Floors, 3D overview, room directory, and room details. The sidebars can be resized by dragging their dividers.
 
@@ -72,12 +104,22 @@ These are local captures of the illustrative demo, saved under [docs/screenshots
 ![Narrow-screen studio with floor controls and mobile navigation](docs/screenshots/studio-mobile.png)
 
 ## Configuration
-The browser and MCP demos require no environment variables. The optional API runs in deterministic mode with no credentials. To use Azure OpenAI instead, configure `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and `AZURE_OPENAI_DEPLOYMENT` together on the **server**; `AZURE_OPENAI_API_VERSION` is optional. Never put secrets in browser code, screenshots, commits, or the SharePoint submission. No key is needed to demonstrate the agent/tool/workflow concepts.
+The browser and MCP demos require no environment variables. The optional API runs in deterministic mode with no credentials. To use standard OpenAI instead of Azure, obtain a key from your own approved OpenAI account and set `OPENAI_API_KEY` and `OPENAI_MODEL` (for example, `gpt-4o-mini`) in the **API server's environment**. In PowerShell, for a local API session:
+
+```powershell
+$env:OPENAI_API_KEY = "<your-own-key>"
+$env:OPENAI_MODEL = "gpt-4o-mini"
+npm run api
+```
+
+The existing Azure option remains available: set `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and `AZURE_OPENAI_DEPLOYMENT` together on the server; `AZURE_OPENAI_API_VERSION` is optional. Configure **one** provider, not both. The API falls back to its deterministic agent if the configured provider fails. Never put secrets in browser code, screenshots, commits, or the SharePoint submission.
+
+No API key is needed for the deployed static site. This repository cannot supply a real key. The Vercel deployment currently builds the static web app and MCP endpoint, **not** the Fastify chat API; adding a provider key to Vercel alone will not enable AI chat in the deployed Studio. Deploy and connect the optional API separately before using a provider there.
 
 ## Agent and MCP
 The built-in concierge runs locally and deterministically. Example input: `Where is the IT helpdesk?` Expected output: a result naming the IT Helpdesk and its floor, a visible tool trace, and a route presentation in the studio when presentation tools are available.
 
-To run the optional local Fastify API alongside Vite, open a second terminal and run `npm run api`. Vite proxies `/api` to port 3000. Without Azure configuration the API uses the deterministic agent; the browser still falls back to its own local agent if the API is stopped. The API is not required for the demo.
+To run the optional local Fastify API alongside Vite, open a second terminal and run `npm run api`. Vite proxies `/api` to port 3000. Without an OpenAI or Azure configuration the API uses the deterministic agent; the browser still falls back to its own local agent if the API is stopped. The API is not required for the demo.
 
 The stdio MCP server uses the official SDK and exposes headless tools only. Start it from an MCP-capable host with `npm run mcp` (this builds the TypeScript core/server first), or configure the client to run `node` with `src/apps/mcp-server/main.mjs` after `npm run build:mcp`. For example, in VS Code's workspace MCP configuration, register a stdio server:
 
@@ -111,13 +153,13 @@ npm run test:integration
 - The lift preview uses a reference photograph of another building, not the Noida site. [Elevator Lobby, Renaissance Center](https://commons.wikimedia.org/wiki/File:Elevator_Lobby,_Renaissance_Center,_Jefferson_Avenue,_Detroit,_MI.jpg) by w_lemay is licensed under [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/); the image is resized for the preview.
 - Route distances, times, and layout checks are indicative and are not building-code, accessibility, or life-safety certification.
 - No live occupancy, room booking, identity, or facilities system is connected.
-- Azure OpenAI support in the API is optional, not required or connected by default. Production authentication and deployment are not implemented.
+- OpenAI and Azure OpenAI support in the optional API require a separately hosted API and are not connected to the deployed site by default. Production authentication and API deployment are not implemented.
 - The Vite studio still uses a parallel JavaScript runtime; it does not yet share the TypeScript core with the MCP server and API.
 - Published links are snapshots: later edits need a new link. A link only works for others when the app is served from a host they can reach; links created on `127.0.0.1` work only on that machine.
 - Anyone who has a published link can see the full layout it contains. Treat links for real buildings as sensitive and share them only with authorized people.
 
 ## Deployment
-For a local demonstration, use `npm start`. A build for an approved static host can be produced with `npm run build:web` (output: `dist/web`), but publishing this sample app requires organizational approval. The local static server (`npm run serve`) and the development server are not production services. Do not expose the API or an MCP endpoint publicly without authentication, approved hosting, authorized building data, and a security review.
+The static web app is deployed at [campustwin.vercel.app](https://campustwin.vercel.app/). For a local demonstration, use `npm start`. Build locally with `npm run build:web` (output: `dist/web`). The deployed Studio uses the browser concierge without an API key; it does not provide production accounts or persistent server-side drafts. Confirm organizational approval before publishing real building data. The local static server (`npm run serve`) and the development server are not production services. Do not expose the API or an MCP endpoint publicly without authentication, approved hosting, authorized building data, and a security review.
 
 ## Agentathon Submission
 The project root contains `Agent.md`, `README.md`, `src/`, `tests/`, and `docs/` (including screenshots). Submit **one** copy in the assigned SharePoint folder of the primary contact. Do not rename or restructure the SharePoint-assigned folder. The representative must verify the required `<Firstname>_<Lastname>_<EmpID>` naming convention and fill in real team/contact details and actual effort hours in [Agent.md](Agent.md); none are invented here. Remove any unauthorized or sensitive material before uploading. The stated submission deadline is Monday, 05 October 2026; confirm access and timing with the organizers.
