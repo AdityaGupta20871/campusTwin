@@ -3,7 +3,6 @@ import { building } from "../data/building-data.js";
 import { h, $ } from "../ui/dom.js";
 
 const base = $("base");
-const perRoom = $("per-room");
 const sheet = $("sheet");
 base.value = new URL("./studio.html", location.href).toString();
 
@@ -38,18 +37,8 @@ function render() {
   root.hash = "";
 
   sheet.replaceChildren(card(building.name, "Scan to open the workplace twin", root.toString(), "qr-card main"));
-  if (!perRoom.checked) return;
-
-  for (const floor of building.floors) {
-    for (const room of floor.rooms) {
-      const url = new URL(root);
-      url.searchParams.set("here", room.id);
-      sheet.append(card(room.name, `${floor.name} – you are here`, url.toString()));
-    }
-  }
 }
 
 base.addEventListener("input", render);
-perRoom.addEventListener("change", render);
 $("print").addEventListener("click", () => window.print());
 render();

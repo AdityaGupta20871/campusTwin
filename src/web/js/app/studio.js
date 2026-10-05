@@ -138,6 +138,12 @@ function onPick(id) {
 const plan = createPlan2D($("viewport-plan"), model, { onPick });
 const preview = $("plan-preview") ? createPlan2D($("plan-preview"), model, { onPick }) : null;
 
+function dismissRoomSheet() {
+  if (!isMobile()) return;
+  document.body.dataset.roomSheet = "closed";
+  document.body.dataset.screen = "map";
+}
+
 let scene3d = null;
 try {
   const { createScene3D } = await import("../ui/scene3d.js");
@@ -277,23 +283,11 @@ function renderDetails(s) {
       facts.length ? h("p", { className: "muted", text: facts.join(" · ") }) : null,
       h("p", { className: "muted", text: `${floor.name}, ${model.building.name}` }),
       h("div", { className: "actions" }, [
-        h("button", { className: "btn", text: isHere ? "Location set" : "Set as my location", attrs: { type: "button", disabled: isHere }, on: { click: () => human("set_my_location", { roomId: room.id }) } }),
-        h("button", { className: "btn", text: "Show indicative route", attrs: { type: "button", disabled: isHere }, on: { click: () => human("navigate_to", { toRoomId: room.id }) } }),
+        h("button", { className: "btn", text: isHere ? "Location set" : "Set as my location", attrs: { type: "button", disabled: isHere }, on: { click: async () => { if ((await human("set_my_location", { roomId: room.id })).ok) dismissRoomSheet(); } } }),
+        h("button", { className: "btn", text: "Show indicative route", attrs: { type: "button", disabled: isHere }, on: { click: async () => { if ((await human("navigate_to", { toRoomId: room.id })).ok) dismissRoomSheet(); } } }),
       ]),
     ])
   );
-}
-
-function floorQrUrl(level) {
-  const url = new URL("qr.html", location.href);
-  url.searchParams.set("floor", String(level));
-  return url;
-}
-
-function studioFloorUrl(level) {
-  const url = new URL("studio.html", location.href);
-  url.searchParams.set("floor", String(level));
-  return url;
 }
 
 function paintQr(el, text) {
@@ -339,17 +333,7 @@ function renderContext(s) {
   const floor = model.getFloor(level);
   if (!floor) return;
   $("floor-title").textContent = floor.name;
-  const qrTitle = $("qr-floor-title");
-  if (qrTitle) qrTitle.textContent = floor.name;
-  const place = $("qr-place");
-  if (place) place.textContent = `${floor.name} · ${model.building.name}`;
-  const href = floorQrUrl(level);
-  $("floor-qr-link").href = href.toString();
-  const print = $("print-qr");
-  if (print) print.href = href.toString();
-  const moreQr = $("more-qr");
-  if (moreQr) moreQr.href = href.toString();
-  paintQr($("floor-qr-code"), studioFloorUrl(level).toString());
+  paintQr($("floor-qr-code"), new URL("studio.html", location.href).toString());
 
   let entries = model.roomsOnFloor(level);
   if (facility) entries = entries.filter((e) => e.typeKey === facility);
@@ -535,7 +519,10 @@ window.addEventListener("resize", () => {
 
 function setTab(tab) {
   store.setState({ tab });
-  if (isMobile()) document.body.dataset.right = "open";
+  if (isMobile()) {
+    document.body.dataset.right = "open";
+    document.body.dataset.roomSheet = "open";
+  }
 }
 for (const btn of $("tabs").querySelectorAll("button")) {
   btn.addEventListener("click", () => {
@@ -567,8 +554,7 @@ $("zoom-fit").addEventListener("click", () => { plan.fit(); preview?.fit(); });
 $("emergency")?.addEventListener("click", () => human("show_emergency_exit"));
 $("emergency-off")?.addEventListener("click", () => human("clear_map"));
 $("view-plan")?.addEventListener("click", async () => {
-  await human("switch_view", { view: "plan" });
-  document.body.dataset.screen = "map";
+  if ((await human("switch_view", { view: "plan" })).ok) dismissRoomSheet();
 });
 $("view-all-spaces")?.addEventListener("click", () => {
   setFacility(null);
@@ -761,19 +747,23 @@ async function share({ room } = {}) {
   if (navigator.share) {
     try {
       await navigator.share({ title, url: url.toString() });
-    } catch {
-      /* user cancelled */
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
     }
-    return;
   }
   try {
     await navigator.clipboard.writeText(url.toString());
     toast("Link copied");
   } catch {
-    toast(url.toString());
+    $("share-url").value = url.toString();
+    $("share-open").href = url.toString();
+    $("share-dialog").showModal();
+    $("share-url").select();
   }
 }
 $("share").addEventListener("click", () => share());
+$("share-dialog-close").addEventListener("click", () => $("share-dialog").close());
 
 // ---------- Keyboard ----------
 document.addEventListener("keydown", (e) => {

@@ -3,112 +3,187 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#101318" />
+  <meta name="theme-color" content="#f7f9fc" />
   <meta name="description" content="Campus Twin – a human + agent workplace twin for Sopra Steria Noida. 2D plan, 3D orbit and walk mode driven by typed agent tools (WebMCP + MCP)." />
   <title>Campus Twin – Human + Agent Workplace Twin</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="assets/css/base.css" />
-  <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/home.css" />
 </head>
-<body class="landing">
+<body class="home">
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-logo" viewBox="0 0 24 24"><path d="M12 1.5 21.5 7v10L12 22.5 2.5 17V7L12 1.5Z" fill="currentColor"/><path d="M12 7.2 16.2 9.6v4.8L12 16.8l-4.2-2.4V9.6L12 7.2Z" fill="#fff"/><path d="M12 1.5v5.7M21.5 7l-5.3 2.6" stroke="#fff" stroke-width="1.4"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10 8.5 5 3.5-5 3.5z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></g></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></g></symbol>
+    <symbol id="i-nav" viewBox="0 0 24 24"><path d="M3 11 21 3l-8 18-2-8-8-2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4 1.5 4.5 4"/></g></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v1M17 20h4M20 17v4"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></g></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/></g></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5l8-2v18M12 21V9l8 2v10M2 21h20M7 8h2M7 12h2M7 16h2M15 14h2M15 17h2"/></g></symbol>
+    <symbol id="i-agent" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.5 6h7M7.2 8.2l3.6 7.6M16.8 8.2l-3.6 7.6"/></g></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  </svg>
+
   <header class="nav">
-    <a class="brand" href="./"><span class="brand-mark">CT</span><span>Campus Twin</span><span class="brand-sub">Sopra Steria · Noida</span></a>
+    <a class="brand" href="./"><svg class="brand-logo" aria-hidden="true"><use href="#i-logo"/></svg><span>Campus Twin</span></a>
     <nav class="nav-links" aria-label="Sections">
-      <a href="#loop">Agent loop</a>
-      <a href="#tools">Tools</a>
-      <a href="#workflows">Workflows</a>
-      <a href="#surfaces">Surfaces</a>
-      <a href="builder.html">Floor editor</a>
-      <a href="qr.html">QR codes</a>
+      <a href="#product">Product</a>
+      <a href="#use-cases">Use Cases</a>
+      <a href="#features">Features</a>
+      <a href="builder.html">Floor Editor</a>
+      <a href="qr.html">Studio QR</a>
     </nav>
-    <a class="btn btn-primary" href="studio.html">Open studio</a>
+    <a class="btn btn-dark btn-sm" href="studio.html">Open Studio <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Human + Agent workplace twin</p>
-        <h1>Ask the building.<br /><span>Let an agent walk you there.</span></h1>
-        <p class="lede">
-          A live 2D + 3D twin of the Noida office that people and AI agents operate together.
-          Find rooms, route across floors, evacuate safely and validate the layout — through one set of
-          typed, guard-railed tools shared by the studio, browser agents (WebMCP) and IDE agents (MCP).
-        </p>
+        <p class="pill-label">Human + agent workplace twin · Noida</p>
+        <h1>Your campus, understood. <span>Ask. Explore. Operate.</span></h1>
+        <p class="lede">A live 2D + 3D digital twin of your campus that helps people find rooms, navigate floors, validate layouts and run safer, smarter workplace operations — with AI.</p>
         <div class="cta">
-          <a class="btn btn-primary btn-lg" href="studio.html">Enter the live studio</a>
-          <a class="btn btn-ghost btn-lg" href="builder.html">Edit floor plan</a>
-          <a class="btn btn-ghost btn-lg" id="ask-cta" href="studio.html?ask=Where%20is%20the%20IT%20helpdesk%3F">Ask the agent →</a>
+          <a class="btn btn-dark btn-lg" href="studio.html">Enter Campus Twin <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-light btn-lg" href="studio.html?ask=Take%20me%20to%20Meeting%20Room%203.01"><svg aria-hidden="true"><use href="#i-play"/></svg> Try a guided route</a>
         </div>
-        <dl class="stats" id="stats"></dl>
+        <ul class="hero-points">
+          <li><svg aria-hidden="true"><use href="#i-cube"/></svg>Live 2D + 3D Twin</li>
+          <li><svg aria-hidden="true"><use href="#i-agent"/></svg>AI Agent (WebMCP)</li>
+          <li><svg aria-hidden="true"><use href="#i-users"/></svg>Room &amp; People Aware</li>
+          <li><svg aria-hidden="true"><use href="#i-shield"/></svg>Safer Workflows</li>
+          <li><svg aria-hidden="true"><use href="#i-clipboard"/></svg>Guard-railed Tools</li>
+          <li><svg aria-hidden="true"><use href="#i-building"/></svg>Built for Enterprises</li>
+        </ul>
       </div>
 
-      <figure class="drawing" aria-label="Live axonometric drawing of the building">
-        <div class="drawing-head mono">
-          <span>SHEET A-001 · AXONOMETRIC</span>
-          <span class="live"><i></i>LIVE MODEL</span>
+      <figure class="hero-visual">
+        <div class="hero-image">
+          <img src="assets/img/landing/hero-campus-twin.png" width="374" height="380" fetchpriority="high" alt="Isometric 3D campus floor with workstations, reception and a highlighted route to a meeting room on floor 3" />
         </div>
-        <svg id="iso" class="iso" role="img" aria-label="Exploded axonometric model of the building with an agent route"></svg>
-        <div class="layers mono" role="group" aria-label="Drawing layers" id="layers">
-          <button type="button" data-layer="plan" aria-pressed="true">Plan</button>
-          <button type="button" data-layer="structure" aria-pressed="true">Structure</button>
-          <button type="button" data-layer="route" aria-pressed="true">Route</button>
-          <button type="button" data-layer="dims" aria-pressed="true">Dims</button>
-        </div>
-        <figcaption class="ticker mono" aria-live="polite">
-          <div class="ticker-head"><span>AGENT TRACE</span><button type="button" id="replay" class="link">replay</button></div>
-          <ol id="ticker"></ol>
-        </figcaption>
+        <a class="ask-card" href="studio.html?ask=Take%20me%20to%20Meeting%20Room%203.01">
+          <span class="ask-title"><svg aria-hidden="true"><use href="#i-plus"/></svg>Ask Campus Twin</span>
+          <span class="ask-input">Take me to Meeting Room 3.01 <svg aria-hidden="true"><use href="#i-chevron"/></svg></span>
+        </a>
+        <span class="compass" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="#fff" stroke="#c9d4e2"/><path d="M12 4.5 15 13h-6l3-8.5Z" fill="#111820"/><path d="M9 13h6l-3 6.5L9 13Z" fill="#c9d4e2"/></svg>N</span>
       </figure>
     </section>
 
-    <section class="section" id="loop">
-      <p class="eyebrow">How the agent thinks</p>
-      <h2>Perceive → Plan → Act → Observe → Respond</h2>
-      <p class="section-lede">Every capability is a typed tool with a JSON schema and a read-only hint. The built-in concierge, a browser agent and an IDE agent all call the same tools through one executor — so every action is validated, attributed and visible on the shared canvas.</p>
-      <ol class="loop">
-        <li><span class="mono">01 · Perceive</span><h3>Understand the ask</h3><p>Normalise the message and read context: where you are, what is on screen.</p></li>
-        <li><span class="mono">02 · Plan</span><h3>Pick a skill</h3><p>Match an intent — route, nearest facility, meeting fit, evacuation, workflow, checks.</p></li>
-        <li><span class="mono">03 · Act</span><h3>Call typed tools</h3><p>Inputs are schema-validated at the boundary; unknown tools and bad ids are rejected.</p></li>
-        <li><span class="mono">04 · Observe</span><h3>Read structured results</h3><p>Tools return envelopes with data or typed error codes — never stack traces.</p></li>
-        <li><span class="mono">05 · Respond</span><h3>Show, don’t tell</h3><p>The route appears on the plan and in 3D, with a full tool trace in the activity log.</p></li>
-      </ol>
-      <dl class="glossary">
-        <div><dt>Agent</dt><dd>Software that decides which actions to take to reach a goal, then takes them.</dd></div>
-        <div><dt>Tool</dt><dd>A named, typed capability the agent can call (e.g. <code>get_directions</code>).</dd></div>
-        <div><dt>Workflow</dt><dd>A predefined multi-step journey the agent runs end-to-end (e.g. new-joiner day 1).</dd></div>
-        <div><dt>MCP / WebMCP</dt><dd>Open protocols that let any compatible AI client discover and call these tools.</dd></div>
-        <div><dt>Guardrail</dt><dd>Schema validation, read-only hints, input caps and life-safety rules (no lifts in a fire).</dd></div>
-        <div><dt>Human-in-the-loop</dt><dd>People and agents edit the same state; every action is attributed and reversible.</dd></div>
-      </dl>
+    <section class="trusted" aria-label="Trusted by modern campuses">
+      <img src="assets/img/landing/trusted-logos.png" width="615" height="70" loading="lazy" alt="Trusted by modern campuses: Sopra Steria, Microsoft, Google, Deloitte, Amazon and EY" />
     </section>
 
-    <section class="section" id="tools">
-      <p class="eyebrow">Tool surface</p>
-      <h2 id="tools-title">Typed agent tools</h2>
-      <div class="tool-grid" id="tool-grid"></div>
-    </section>
-
-    <section class="section" id="workflows">
-      <p class="eyebrow">Workflows</p>
-      <h2>Multi-stop journeys, one prompt</h2>
-      <div class="workflow-grid" id="workflow-grid"></div>
-    </section>
-
-    <section class="section" id="surfaces">
-      <p class="eyebrow">One model, three surfaces</p>
-      <h2>Wherever the agent lives</h2>
-      <div class="surface-grid">
-        <article><span class="mono">STUDIO</span><h3>People</h3><p>2D floor plan, 3D orbit and first-person walk mode with the built-in concierge agent. Works offline, no sign-in.</p><a href="studio.html">Open studio →</a></article>
-        <article><span class="mono">WEBMCP</span><h3>Browser agents</h3><p>The studio registers its tools with <code>navigator.modelContext</code>, so in-browser AI agents can drive the live canvas.</p><a href="studio.html">Try it →</a></article>
-        <article><span class="mono">MCP · STDIO</span><h3>IDE &amp; desktop agents</h3><p><code>npm run mcp</code> exposes the headless tools to GitHub Copilot, Claude Desktop and other MCP clients.</p><a href="https://modelcontextprotocol.io" rel="noopener noreferrer">About MCP →</a></article>
+    <section class="split" id="product">
+      <div class="split-copy">
+        <p class="pill-label">From search to action</p>
+        <h2>An AI copilot for your physical workspace.</h2>
+        <p>Campus Twin understands your campus, so people can find, navigate, and operate with confidence.</p>
+        <a class="btn btn-dark btn-lg" href="studio.html">See it in action <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
+      <img class="split-media devices" src="assets/img/landing/copilot-devices.png" width="420" height="265" loading="lazy" alt="Campus Twin on a laptop and phone showing a walking route from reception to Meeting Room 4" />
+    </section>
+
+    <section class="section" id="features">
+      <header class="section-head">
+        <p class="pill-label">Powerful capabilities</p>
+        <h2>Everything you need for a smarter campus.</h2>
+        <p>From navigation to operations, Campus Twin brings your physical space to life with AI.</p>
+      </header>
+      <ul class="card-grid features">
+        <li><svg aria-hidden="true"><use href="#i-search"/></svg><h3>AI-Powered Search</h3><p>Ask for any room, desk, or facility in natural language.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-cube"/></svg><h3>Interactive 2D + 3D Twin</h3><p>Explore your campus with stunning, accurate maps.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-nav"/></svg><h3>Smart Navigation</h3><p>Get optimal routes across floors with live guidance.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-calendar"/></svg><h3>Room &amp; Asset Insights</h3><p>Check availability, capacity and amenities instantly.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-gear"/></svg><h3>Workplace Workflows</h3><p>Run operations, validations and safety checks with AI.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-user"/></svg><h3>People Aware</h3><p>Find teammates and see where people are (with privacy).</p></li>
+        <li><svg aria-hidden="true"><use href="#i-qr"/></svg><h3>QR Codes &amp; Signage</h3><p>Scan and navigate instantly on your phone.</p></li>
+        <li><svg aria-hidden="true"><use href="#i-lock"/></svg><h3>Enterprise Ready</h3><p>Secure, scalable and built for modern workplaces.</p></li>
+      </ul>
+    </section>
+
+    <section class="split reverse">
+      <a class="split-media photo" href="studio.html?ask=Where%20is%20the%20nearest%20pantry%3F" aria-label="Ask Campus Twin: where is the nearest pantry?">
+        <img src="assets/img/landing/workspace-ask.png" width="355" height="270" loading="lazy" alt="" />
+      </a>
+      <div class="split-copy">
+        <p class="pill-label">Natural interaction</p>
+        <h2>Just ask. Campus Twin does the rest.</h2>
+        <p>No more confusing maps or outdated PDFs. Simply ask in natural language and get instant, accurate answers with visual guidance.</p>
+        <ul class="checklist">
+          <li><svg aria-hidden="true"><use href="#i-search"/></svg>Find rooms, desks, or facilities</li>
+          <li><svg aria-hidden="true"><use href="#i-send"/></svg>Navigate across floors in 2D and 3D</li>
+          <li><svg aria-hidden="true"><use href="#i-calendar"/></svg>Get real-time availability</li>
+          <li><svg aria-hidden="true"><use href="#i-agent"/></svg>Run workplace workflows with AI</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="impact">
+      <header class="section-head">
+        <p class="pill-label">Real impact</p>
+        <h2>Smarter spaces. Happier people.</h2>
+        <p>Built for enterprises, designed for humans.</p>
+      </header>
+      <dl class="stats">
+        <div><dt>50%</dt><dd>Faster wayfinding</dd></div>
+        <div><dt>30%</dt><dd>Reduced helpdesk queries</dd></div>
+        <div><dt>2×</dt><dd>Higher space utilization</dd></div>
+        <div><dt>90%</dt><dd>Positive employee feedback</dd></div>
+      </dl>
+      <p class="footnote">Illustrative concept figures, not measured results.</p>
+    </section>
+
+    <section class="section" id="use-cases">
+      <header class="section-head">
+        <p class="pill-label">Built for every team</p>
+        <h2>One platform. Many use cases.</h2>
+      </header>
+      <ul class="card-grid uses">
+        <li><h3><svg aria-hidden="true"><use href="#i-user"/></svg>Employees</h3><p>Find rooms, navigate, and get things done faster.</p></li>
+        <li><h3><svg aria-hidden="true"><use href="#i-gear"/></svg>Facilities &amp; Ops</h3><p>Monitor spaces and run smarter workflows.</p></li>
+        <li><h3><svg aria-hidden="true"><use href="#i-shield"/></svg>IT &amp; Admins</h3><p>Secure, scalable, and easy to manage.</p></li>
+        <li><h3><svg aria-hidden="true"><use href="#i-users"/></svg>Visitors</h3><p>Simple QR-based navigation.</p></li>
+      </ul>
+    </section>
+
+    <section class="cta-band" aria-labelledby="cta-title">
+      <div class="cta-copy">
+        <p class="eyebrow">Ready to see your campus in a new way?</p>
+        <h2 id="cta-title">Experience Campus Twin</h2>
+        <p>Bring your physical campus to life with AI.</p>
+        <div class="cta">
+          <a class="btn btn-white btn-lg" href="studio.html">Open Studio <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-outline-light btn-lg" href="qr.html">Get the Studio QR</a>
+        </div>
+      </div>
+      <img class="cta-media" src="assets/img/landing/cta-building.png" width="305" height="165" loading="lazy" alt="Office building at dusk tagged with 3D Twin, AI Agents, Workflows and QR Navigation" />
     </section>
   </main>
 
-  <footer class="footer mono">
-    <span>AI BY DESIGN · AGENTATHON 2026</span>
-    <span id="footer-building"></span>
-    <span>Indicative wayfinding — not a certified life-safety system.</span>
+  <footer class="footer">
+    <div class="footer-brand">
+      <a class="brand" href="./"><svg class="brand-logo" aria-hidden="true"><use href="#i-logo"/></svg><span>Campus Twin</span></a>
+      <p>The AI-powered digital twin for modern campuses.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="studio.html">Studio</a>
+      <a href="#features">Features</a>
+      <a href="#use-cases">Use Cases</a>
+      <a href="builder.html">Floor Editor</a>
+      <a href="https://modelcontextprotocol.io" rel="noopener noreferrer">About MCP</a>
+    </nav>
+    <div class="footer-legal">
+      <span>© 2026 Campus Twin. All rights reserved.</span>
+      <span>Indicative wayfinding — not a certified life-safety system.</span>
+    </div>
   </footer>
 
   <script type="module" src="js/app/landing.js"></script>

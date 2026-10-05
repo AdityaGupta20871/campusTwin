@@ -31,7 +31,7 @@ Use a desktop browser for the presentation; the layout also supports tablet and 
 1. Open the studio and select Floor 2. Show the 3D model, rotate it, drag the sidebar dividers, then switch to **2D** to inspect the plan.
 2. Type `Where is the IT helpdesk?` in search and press Enter. The local concierge finds the room, draws an indicative route from Reception, and lists steps including the lift to Floor 3. The result is generated from sample geometry, not live building data.
 3. Open **Ask the building** in the details panel to show the tool trace. Explain: an **agent** chooses and calls a **tool** (such as directions); a **workflow** links several steps, such as the predefined new-joiner journey.
-4. Under **Ask the building**, try a predefined workflow or open **Checks** and run the layout checks. On mobile, use **Rooms**, **Floor QR**, and **More** in the bottom navigation to show those separate screens.
+4. Under **Ask the building**, try a predefined workflow or open **Checks** and run the layout checks. On mobile, use **Rooms**, **Studio QR**, and **More** in the bottom navigation. The printable QR page generates one code for the studio URL, not separate codes for floors or rooms.
 5. For the optional MCP portion, use an MCP-capable client configured as below. Its headless `get_directions` call returns route data; it does **not** change the map in an already open browser tab.
 
 ### Screenshots

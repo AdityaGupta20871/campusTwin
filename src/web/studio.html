@@ -96,7 +96,7 @@
           <p id="floor-blurb" class="floor-blurb">Explore rooms and facilities on this floor.</p>
         </div>
         <a id="floor-qr-link" class="qr-link" href="qr.html">
-          <span><strong>Floor QR code</strong><small>View all rooms on this floor</small></span>
+          <span><strong>Studio QR code</strong><small>Open Campus Twin</small></span>
         </a>
       </div>
       <div class="context-columns">
@@ -175,27 +175,26 @@
     <h2>Rooms</h2>
     <ul id="directory" class="directory"></ul>
   </section>
-  <section class="qr-screen" id="qr-screen" aria-label="Floor QR">
-    <h2 id="qr-floor-title">Floor</h2>
-    <p class="muted">Scan to open this floor and browse every room on it.</p>
+  <section class="qr-screen" id="qr-screen" aria-label="Studio QR">
+    <h2>Campus Twin</h2>
+    <p class="muted">Scan to open the studio.</p>
     <div class="qr-stage">
       <div id="floor-qr-code" class="qr-code"></div>
-      <strong>Scan to explore this floor</strong>
-      <p class="muted" id="qr-place"></p>
-      <a id="print-qr" class="btn btn-primary" href="qr.html">Print this QR code</a>
-      <p class="muted">This QR code links to a sample floor. It does not represent live room availability.</p>
+      <strong>Scan to explore the building</strong>
+      <a id="print-qr" class="btn btn-primary" href="qr.html">Print studio QR</a>
+      <p class="muted">This code opens an illustrative layout, not live room availability.</p>
     </div>
   </section>
   <section class="more-screen" aria-label="More">
     <h2>More</h2>
     <p class="muted">Sample workplace twin. Availability and routing are illustrative.</p>
     <p><a class="btn btn-primary" href="builder.html">Open floor editor</a></p>
-    <p><a id="more-qr" href="qr.html">Printable floor QR</a></p>
+    <p><a id="more-qr" href="qr.html">Printable studio QR</a></p>
   </section>
   <nav class="tabbar" aria-label="Primary">
     <button type="button" data-screen="map" aria-current="page"><span class="tab-icon" aria-hidden="true">⌂</span><span>Map</span></button>
     <button type="button" data-screen="rooms"><span class="tab-icon" aria-hidden="true">▤</span><span>Rooms</span></button>
-    <button type="button" data-screen="qr"><span class="tab-icon" aria-hidden="true">▦</span><span>Floor QR</span></button>
+    <button type="button" data-screen="qr"><span class="tab-icon" aria-hidden="true">▦</span><span>Studio QR</span></button>
     <button type="button" data-screen="more"><span class="tab-icon" aria-hidden="true">•••</span><span>More</span></button>
   </nav>
   <div class="sr-only">
@@ -204,6 +203,14 @@
   </div>
   <footer class="statusbar"><span>status</span></footer>
   <div id="toast" class="toast hidden" role="status"></div>
+  <dialog id="share-dialog" class="share-dialog" aria-labelledby="share-dialog-title">
+    <div class="share-dialog-head">
+      <h2 id="share-dialog-title">Room link</h2>
+      <button id="share-dialog-close" class="icon-btn" type="button" aria-label="Close room link">×</button>
+    </div>
+    <input id="share-url" type="text" aria-label="Room link" readonly />
+    <a id="share-open" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Open link</a>
+  </dialog>
   <script type="module" src="js/app/studio.js"></script>
 </body>
 </html>
