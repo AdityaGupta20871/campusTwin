@@ -3,6 +3,7 @@ import qrcode from "qrcode-generator";
 import { createElement, ZoomIn, ZoomOut, RotateCcw, Building2 } from "lucide";
 import { createRuntime } from "../core/runtime.js";
 import { readBuildingDraft } from "../core/building-draft.js";
+import { decodeBuildingShare, readShareToken } from "../core/building-share.js";
 import { building as starterBuilding } from "../data/building-data.js";
 import { createConciergeAgent } from "../core/agent.js";
 import { createStore, appendActivity } from "../core/store.js";
@@ -92,7 +93,20 @@ const presenter = {
 };
 
 // ---------- Runtime ----------
-const building = readBuildingDraft(starterBuilding);
+const shareToken = readShareToken();
+let sharedBuilding = null;
+let shareError = null;
+if (shareToken) {
+  try {
+    sharedBuilding = await decodeBuildingShare(shareToken);
+  } catch (error) {
+    shareError = error.message || "Shared model link could not be opened.";
+  }
+}
+window.addEventListener("hashchange", () => {
+  if (readShareToken() !== shareToken) location.reload();
+});
+const building = sharedBuilding ?? readBuildingDraft(starterBuilding);
 // The API only knows the bundled building, so custom drafts must use the in-browser agent.
 const usingCustomDraft = building !== starterBuilding;
 const runtime = createRuntime({
@@ -291,11 +305,23 @@ function renderDetails(s) {
 }
 
 function paintQr(el, text) {
-  if (!el || typeof qrcode !== "function") return;
-  const qr = qrcode(0, "M");
-  qr.addData(text);
-  qr.make();
-  el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  if (!el || typeof qrcode !== "function") return false;
+  try {
+    const qr = qrcode(0, "L");
+    qr.addData(text);
+    qr.make();
+    el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function studioUrl() {
+  const url = new URL("studio.html", location.href);
+  url.search = "";
+  url.hash = sharedBuilding ? location.hash : "";
+  return url.toString();
 }
 
 const SPACE_ICON_SHAPES = Object.freeze({
@@ -333,7 +359,7 @@ function renderContext(s) {
   const floor = model.getFloor(level);
   if (!floor) return;
   $("floor-title").textContent = floor.name;
-  paintQr($("floor-qr-code"), new URL("studio.html", location.href).toString());
+  if (!paintQr($("floor-qr-code"), studioUrl())) paintQr($("floor-qr-code"), new URL("studio.html", location.href).toString());
 
   let entries = model.roomsOnFloor(level);
   if (facility) entries = entries.filter((e) => e.typeKey === facility);
@@ -743,6 +769,7 @@ async function share({ room } = {}) {
   if (roomId) url.searchParams.set("room", roomId);
   else if (s.activeLevel !== null) url.searchParams.set("floor", String(s.activeLevel));
   if (s.view !== "orbit") url.searchParams.set("view", s.view);
+  if (sharedBuilding) url.hash = location.hash;
   const title = roomId ? `${model.getRoom(roomId).room.name} – ${model.building.name}` : model.building.name;
   if (navigator.share) {
     try {
@@ -905,5 +932,15 @@ if (room && model.hasRoom(room)) {
 }
 if (workflow && model.getWorkflow(workflow)) await human("show_itinerary", { workflowId: workflow });
 if (ask && ask.length <= 200) sendToAgent(ask);
+
+if (sharedBuilding) {
+  for (const link of document.querySelectorAll('a[href="builder.html"]')) {
+    link.href = `builder.html${location.hash}`;
+    link.textContent = "Edit a copy";
+  }
+  toast(`Viewing shared model: ${sharedBuilding.name}`);
+} else if (shareError) {
+  toast(shareError);
+}
 
 requestAnimationFrame(() => requestAnimationFrame(() => $("loading").classList.add("done")));

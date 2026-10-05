@@ -1,9 +1,11 @@
 import "./fonts.js";
+import qrcode from "qrcode-generator";
 import { createElement, GripVertical } from "lucide";
 import { building as starterBuilding, roomTypes } from "../data/building-data.js";
 import { parseBuilderCommand } from "../core/builder-commands.js";
 import { createModel } from "../core/model.js";
 import { clearBuildingDraft, isValidBuildingDraft, readBuildingDraft, saveBuildingDraft } from "../core/building-draft.js";
+import { buildShareUrl, decodeBuildingShare, readShareToken } from "../core/building-share.js";
 import { createPlan2D } from "../ui/plan2d.js";
 import { $, h, hexColor, tint } from "../ui/dom.js";
 import { registerWebMcpTools } from "./webmcp.js";
@@ -452,6 +454,71 @@ $("reset-layout").addEventListener("click", () => {
 });
 
 const menu = $("builder-menu");
+
+async function publishModel() {
+  let url;
+  try {
+    url = await buildShareUrl(building);
+  } catch (error) {
+    setStatus(error.message || "Model could not be published", true);
+    return;
+  }
+  $("publish-name").textContent = building.name;
+  $("publish-url").value = url;
+  $("publish-open").href = url;
+  $("publish-copy").textContent = "Copy";
+  const qrHost = $("publish-qr");
+  try {
+    const qr = qrcode(0, "L");
+    qr.addData(url);
+    qr.make();
+    qrHost.innerHTML = qr.createSvgTag({ cellSize: 3, margin: 2, scalable: true });
+  } catch {
+    qrHost.replaceChildren(h("p", { text: "This model is too large for a QR code. Share the link instead." }));
+  }
+  $("publish-meta").textContent = `${building.floors.length} floors · ${allRooms().length} spaces · ${(url.length / 1024).toFixed(1)} KB link`;
+  $("publish-share").hidden = typeof navigator.share !== "function";
+  $("publish-dialog").showModal();
+  $("publish-url").select();
+}
+
+$("publish-model").addEventListener("click", publishModel);
+$("publish-close").addEventListener("click", () => $("publish-dialog").close());
+$("publish-copy").addEventListener("click", async () => {
+  const input = $("publish-url");
+  try {
+    await navigator.clipboard.writeText(input.value);
+    $("publish-copy").textContent = "Copied";
+  } catch {
+    input.select();
+    $("publish-copy").textContent = "Press Ctrl+C";
+  }
+});
+$("publish-share").addEventListener("click", async () => {
+  try {
+    await navigator.share({ title: `${building.name} – Campus Twin`, url: $("publish-url").value });
+  } catch {
+    // Share sheet dismissed or unavailable; the link stays in the dialog.
+  }
+});
+
+async function importSharedModel() {
+  const token = readShareToken();
+  if (!token) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  try {
+    const shared = await decodeBuildingShare(token);
+    if (!window.confirm(`Replace the draft in this browser with the shared model "${shared.name}"?`)) return;
+    building = structuredClone(shared);
+    activeLevel = building.floors[0].level;
+    selectedRoomId = building.floors[0].rooms[0]?.id ?? null;
+    placingRoom = false;
+    saveAndRender();
+    setStatus("Shared model copied into this browser");
+  } catch (error) {
+    setStatus(error.message || "Shared model link could not be opened", true);
+  }
+}
 const closeMenu = () => { menu.hidden = true; };
 $("plan-canvas").addEventListener("contextmenu", (event) => {
   event.preventDefault();
@@ -664,3 +731,5 @@ registerWebMcpTools({
 });
 
 render();
+importSharedModel();
+window.addEventListener("hashchange", importSharedModel);

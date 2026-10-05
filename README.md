@@ -2,6 +2,17 @@
 
 Campus Twin is a human-and-agent workplace wayfinding prototype. The studio combines a building directory, 2D/3D views, a deterministic offline concierge, reusable tools, workflows, and MCP/WebMCP prototypes. The included Noida layout is explicitly illustrative sample data and is not a verified floor plan.
 
+## Why This Exists
+As a fresher, finding my way around a large campus was hard. With towers of 10, 17 or 19 floors, simple questions took a lot of walking and asking around: where is the stationery counter, which floor has the medical room, where is the lab I need for testing, which lift goes there? Printed floor maps were outdated or missing, and every new joiner had to learn the same routes the hard way.
+
+Campus Twin turns that knowledge into something anyone can create and share:
+
+1. **Build** – anyone can model a campus floor by floor in the **Floor Builder**: add floors, rooms, labs, the medical room, stationery, pantries, lifts and stairs.
+2. **Publish** – click **Publish & share** to get a link and QR code for a read-only 3D copy of that building.
+3. **Navigate** – anyone who opens the link can search for a room or facility, see it in 2D/3D, and follow an indicative route across floors, including the lift or stairs to take.
+
+A fresher can then scan a QR code at reception and ask “Where is the medical room?” instead of wandering between floors.
+
 ## Status
 The browser studio is bundled with Vite and still uses its JavaScript runtime. A parallel strict TypeScript core powers the stdio MCP server and a Fastify chat API with deterministic fallback and optional Azure OpenAI integration. Browser presentation and MCP tools are separate: an MCP call does not move the map in an open browser tab. The browser does not yet share the TypeScript core, and production authentication, approved building data, and deployment are not implemented. See [docs/architecture.md](docs/architecture.md) for the current boundary.
 
@@ -20,10 +31,20 @@ npm install
 npm start
 ```
 
-Open the studio at `http://127.0.0.1:5173/studio.html` (or the port Vite prints if 5173 is busy). Keep the terminal running. The app works without an API server: if the local chat endpoint is unavailable, it uses the deterministic browser concierge. This is a local demo, not a public URL.
+Open the studio at `http://127.0.0.1:5173/studio.html` (or the port Vite prints if 5173 is busy). The landing page is at `http://127.0.0.1:5173/`. Keep the terminal running. The app works without an API server: if the local chat endpoint is unavailable, it uses the deterministic browser concierge. This is a local demo, not a public URL.
 
 ### Floor Builder
-Open `http://127.0.0.1:5173/builder.html` to edit a browser-local draft. Right-click empty floor space to add a room, lift, stairs, or floor; right-click a room to select, move, duplicate, or delete it. Drag a room on the plan to reposition it. On wide screens, drag the side panels by their move handles; double-click a handle to dock it again. **Builder chat** accepts specific offline commands such as `add floor called Showcase`, `add a 6 by 4 meeting room called Orion on floor 2`, `move Orion to 12, -5`, and `rename room Orion to Atlas`. Unsupported instructions report an error; this chat is not an LLM. Download JSON to back up your draft, or Import JSON to load a valid building draft into this browser. Draft changes are stored only in this browser until exported.
+Open `http://127.0.0.1:5173/builder.html` to edit a browser-local draft. Right-click empty floor space to add a room, lift, stairs, or floor; right-click a room to select, move, duplicate, or delete it. Drag a room on the plan to reposition it. On wide screens, drag the side panels by their move handles; double-click a handle to dock it again. **Builder chat** accepts specific offline commands such as `add floor called Showcase`, `add a 6 by 4 meeting room called Orion on floor 2`, `move Orion to 12, -5`, and `rename room Orion to Atlas`. Unsupported instructions report an error; this chat is not an LLM. Download JSON to back up your draft, or Import JSON to load a valid building draft into this browser. Draft changes are stored only in this browser until exported or published.
+
+### Publish and Share a 3D Model
+1. In Floor Builder, build or edit your campus.
+2. Click **Publish & share**. The dialog shows a share link, a QR code, the model size, and **Copy**, **Share…** (where the device supports it) and **Open 3D view** buttons.
+3. Send the link or print the QR code. Opening it shows the model in the 3D studio with search, 2D/3D views and route finding. The studio's own **Share** button and QR code keep the shared model in the link.
+4. Viewers can click **Edit a copy** to load the shared model into their own Floor Builder. They are asked before their existing draft is replaced.
+
+The model is compressed into the link after `#model=`. Browsers do not send that part to the web server, so nothing is uploaded or stored. The sample building produces a link of about 2 KB, small enough for a QR code. Larger models still get a link, and the dialog says when a QR code is not possible.
+
+Sample input: the sample building (4 floors, 41 spaces) → **Publish & share**. Sample output: `https://<your-host>/studio.html#model=v1.<compressed model>`, which opens the same building in 3D on any device.
 
 ## Five-Minute Demo
 Use a desktop browser for the presentation; the layout also supports tablet and phone screens.
@@ -32,7 +53,8 @@ Use a desktop browser for the presentation; the layout also supports tablet and 
 2. Type `Where is the IT helpdesk?` in search and press Enter. The local concierge finds the room, draws an indicative route from Reception, and lists steps including the lift to Floor 3. The result is generated from sample geometry, not live building data.
 3. Open **Ask the building** in the details panel to show the tool trace. Explain: an **agent** chooses and calls a **tool** (such as directions); a **workflow** links several steps, such as the predefined new-joiner journey.
 4. Under **Ask the building**, try a predefined workflow or open **Checks** and run the layout checks. On mobile, use **Rooms**, **Studio QR**, and **More** in the bottom navigation. The printable QR page generates one code for the studio URL, not separate codes for floors or rooms.
-5. For the optional MCP portion, use an MCP-capable client configured as below. Its headless `get_directions` call returns route data; it does **not** change the map in an already open browser tab.
+5. Open Floor Builder, add a room (for example a medical room or test lab), click **Publish & share**, then open the link in a new tab or phone to show the published 3D model.
+6. For the optional MCP portion, use an MCP-capable client configured as below. Its headless `get_directions` call returns route data; it does **not** change the map in an already open browser tab.
 
 ### Screenshots
 These are local captures of the illustrative demo, saved under [docs/screenshots](docs/screenshots). They are not verified floor plans or live occupancy data.
@@ -82,7 +104,7 @@ npm run test:unit
 npm run test:integration
 ```
 
-`npm test` builds the core, MCP server, API, and Vite studio before running the Node test suite. Tests cover the compiled core, API, SDK MCP server over in-memory and stdio transports, and static browser server.
+`npm test` builds the core, MCP server, API, and Vite studio before running the Node test suite. Tests cover the compiled core, API, SDK MCP server over in-memory and stdio transports, static browser server, and published-model links (round-trip, dropping unknown fields, and rejecting damaged or oversized links).
 
 ## Limitations
 - Building geometry and room details are sample data and have not been checked against actual site plans.
@@ -91,6 +113,8 @@ npm run test:integration
 - No live occupancy, room booking, identity, or facilities system is connected.
 - Azure OpenAI support in the API is optional, not required or connected by default. Production authentication and deployment are not implemented.
 - The Vite studio still uses a parallel JavaScript runtime; it does not yet share the TypeScript core with the MCP server and API.
+- Published links are snapshots: later edits need a new link. A link only works for others when the app is served from a host they can reach; links created on `127.0.0.1` work only on that machine.
+- Anyone who has a published link can see the full layout it contains. Treat links for real buildings as sensitive and share them only with authorized people.
 
 ## Deployment
 For a local demonstration, use `npm start`. A build for an approved static host can be produced with `npm run build:web` (output: `dist/web`), but publishing this sample app requires organizational approval. The local static server (`npm run serve`) and the development server are not production services. Do not expose the API or an MCP endpoint publicly without authentication, approved hosting, authorized building data, and a security review.

@@ -24,7 +24,8 @@
       <a class="btn" href="studio.html">Open Studio</a>
       <button class="btn" id="import-layout" type="button">Import JSON</button>
       <input id="import-file" type="file" accept=".json,application/json" hidden />
-      <button class="btn btn-primary" id="export-layout" type="button">Download JSON</button>
+      <button class="btn" id="export-layout" type="button">Download JSON</button>
+      <button class="btn btn-primary" id="publish-model" type="button">Publish &amp; share</button>
       <button class="btn btn-ghost" id="reset-layout" type="button">Reset</button>
     </nav>
   </header>
@@ -146,6 +147,24 @@
     </form>
   </aside>
   <div id="builder-toast" class="toast hidden" role="status"></div>
+  <dialog id="publish-dialog" class="publish-dialog" aria-labelledby="publish-title">
+    <div class="publish-head">
+      <h2 id="publish-title">Publish 3D model</h2>
+      <button id="publish-close" type="button" aria-label="Close publish dialog">×</button>
+    </div>
+    <p class="publish-note">Anyone with this link can open a read-only 3D copy of <strong id="publish-name"></strong>. The model is packed into the link itself, so nothing is uploaded and later edits need a new link.</p>
+    <label for="publish-url">Share link</label>
+    <div class="publish-row">
+      <input id="publish-url" type="text" readonly />
+      <button class="btn" id="publish-copy" type="button">Copy</button>
+    </div>
+    <div id="publish-qr" class="publish-qr"></div>
+    <p id="publish-meta" class="publish-meta"></p>
+    <div class="publish-actions">
+      <button class="btn" id="publish-share" type="button" hidden>Share…</button>
+      <a id="publish-open" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Open 3D view</a>
+    </div>
+  </dialog>
   <script type="module" src="js/app/builder.js"></script>
 </body>
 </html>
