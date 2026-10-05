@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createRuntime, type Runtime } from "@campus-twin/core";
+import { registerBuilderTools } from "./builder.js";
 
 export const MCP_SERVER_INFO = {
   name: "campus-twin",
@@ -52,6 +53,8 @@ export function createCampusTwinMcpServer({ runtime = createRuntime(), log = () 
       },
     );
   }
+
+  registerBuilderTools(server, runtime.model.building, runtime.model.roomTypes);
 
   return server;
 }

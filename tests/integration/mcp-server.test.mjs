@@ -42,6 +42,34 @@ describe("MCP SDK server", () => {
     assert.equal(invalidInput.isError, true);
   });
 
+  test("building draft tools return edited JSON without mutating the template", async (context) => {
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+    const server = createCampusTwinMcpServer();
+    const client = new Client({ name: "campus-twin-builder-test", version: "1.0.0" });
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+    context.after(async () => { await Promise.allSettled([client.close(), server.close()]); });
+
+    const { tools } = await client.listTools();
+    assert.equal(tools.find((tool) => tool.name === "edit_building_draft")?.annotations?.readOnlyHint, false);
+    const template = (await client.callTool({ name: "get_building_template", arguments: {} })).structuredContent.building;
+    const level = template.floors.at(-1).level;
+    const edited = await client.callTool({ name: "edit_building_draft", arguments: {
+      building: template, action: "add_room", level, name: "Orion", category: "meeting", width: 6, depth: 4,
+    } });
+    assert.equal(edited.isError, false);
+    assert.equal(edited.structuredContent.building.floors.at(-1).rooms.at(-1).name, "Orion");
+    assert.equal(edited.structuredContent.building.floors.at(-1).rooms.length, template.floors.at(-1).rooms.length + 1);
+    const added = edited.structuredContent.building.floors.at(-1).rooms.at(-1);
+    const collision = await client.callTool({ name: "edit_building_draft", arguments: {
+      building: edited.structuredContent.building, action: "move_room", level, roomId: added.id, x: 0, z: 0,
+    } });
+    assert.equal(collision.isError, true);
+    assert.match(collision.structuredContent.error.message, /overlap/);
+    const freshTemplate = (await client.callTool({ name: "get_building_template", arguments: {} })).structuredContent.building;
+    assert.equal(freshTemplate.floors.at(-1).rooms.length, template.floors.at(-1).rooms.length);
+  });
+
   test("SDK stdio client completes handshake, lists tools, and calls a tool", async () => {
     const transport = new StdioClientTransport({
       command: process.execPath,
@@ -81,5 +109,12 @@ describe("MCP SDK server", () => {
     assert.equal(result.isError, false);
     assert.equal(result.structuredContent.via, "lift");
     assert.equal(result.structuredContent.to.id, "3-it");
+    const template = await client.callTool({ name: "get_building_template", arguments: {} });
+    const edit = await client.callTool({ name: "edit_building_draft", arguments: {
+      building: template.structuredContent.building, action: "rename_building", name: "Remote preview",
+    } });
+    assert.equal(edit.isError, false);
+    assert.equal(edit.structuredContent.building.name, "Remote preview");
+    assert.notEqual(template.structuredContent.building.name, "Remote preview");
   });
 });

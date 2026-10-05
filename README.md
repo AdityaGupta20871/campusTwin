@@ -22,6 +22,9 @@ npm start
 
 Open the studio at `http://127.0.0.1:5173/studio.html` (or the port Vite prints if 5173 is busy). Keep the terminal running. The app works without an API server: if the local chat endpoint is unavailable, it uses the deterministic browser concierge. This is a local demo, not a public URL.
 
+### Floor Builder
+Open `http://127.0.0.1:5173/builder.html` to edit a browser-local draft. Right-click empty floor space to add a room, lift, stairs, or floor; right-click a room to select, move, duplicate, or delete it. Drag a room on the plan to reposition it. On wide screens, drag the side panels by their move handles; double-click a handle to dock it again. **Builder chat** accepts specific offline commands such as `add floor called Showcase`, `add a 6 by 4 meeting room called Orion on floor 2`, `move Orion to 12, -5`, and `rename room Orion to Atlas`. Unsupported instructions report an error; this chat is not an LLM. Download JSON to back up your draft, or Import JSON to load a valid building draft into this browser. Draft changes are stored only in this browser until exported.
+
 ## Five-Minute Demo
 Use a desktop browser for the presentation; the layout also supports tablet and phone screens.
 
@@ -69,6 +72,8 @@ The stdio MCP server uses the official SDK and exposes headless tools only. Star
 ```
 
 Ask the MCP client to call `get_directions` with `{ "toRoomId": "3-it" }`. Sample structured output includes `from: Reception`, `to: IT Helpdesk`, `via: lift`, `distanceM: 30`, `etaSeconds: 61`, and route steps. The browser WebMCP bridge is different: it registers browser tools only if the browser provides `navigator.modelContext`.
+
+For a building-editing client, call `get_building_template`, then `edit_building_draft` with `{ "building": <template building>, "action": "add_room", "level": 2, "name": "Orion", "category": "meeting", "width": 6, "depth": 4 }`. Pass the returned `structuredContent.building` into subsequent edits; supported actions include naming/resizing the building, adding/renaming/deleting floors, and adding/moving/resizing/renaming/deleting/duplicating/retyping rooms. Export the final building JSON and use **Import JSON** in Floor Builder. The MCP endpoint at `/api/mcp` and the stdio server are stateless: they return updated drafts but cannot directly change an open browser tab. Browser WebMCP also exposes `builder_get_draft`, `builder_edit`, `builder_add_floor`, `builder_add_room`, and `builder_move_room` for compatible in-page agents; these tools act on browser-local state only.
 
 ## Tests
 ```powershell

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { building } from "../../src/web/js/data/building-data.js";
+import { parseBuilderCommand } from "../../src/web/js/core/builder-commands.js";
 import {
   BUILDING_DRAFT_STORAGE_KEY,
   clearBuildingDraft,
@@ -51,4 +52,13 @@ test("clearing removes only the building draft", () => {
   saveBuildingDraft(structuredClone(building), storage);
   clearBuildingDraft(storage);
   assert.equal(readBuildingDraft(building, storage), building);
+});
+
+test("builder commands parse floor, geometry, and room edits without guessing", () => {
+  assert.deepEqual(parseBuilderCommand("add floor called Showcase"), { type: "add_floor", name: "Showcase" });
+  assert.deepEqual(parseBuilderCommand("add a 6 by 4 meeting room called Orion on floor 2"), {
+    type: "add_room", roomType: "meeting", width: 6, depth: 4, name: "Orion", floor: "2",
+  });
+  assert.deepEqual(parseBuilderCommand("move Orion to 12, -5"), { type: "move_room", name: "Orion", x: 12, z: -5 });
+  assert.equal(parseBuilderCommand("make an entire office from a photo"), null);
 });

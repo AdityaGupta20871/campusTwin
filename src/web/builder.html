@@ -20,7 +20,10 @@
     <span id="dimension-status" class="dimension-status">Estimated dimensions</span>
     <span id="save-state" class="save-state" role="status">Draft is stored in this browser</span>
     <nav class="builder-actions" aria-label="Project actions">
+      <button class="btn" id="builder-chat-toggle" type="button" aria-expanded="false" aria-controls="builder-chat">Builder chat</button>
       <a class="btn" href="studio.html">Open Studio</a>
+      <button class="btn" id="import-layout" type="button">Import JSON</button>
+      <input id="import-file" type="file" accept=".json,application/json" hidden />
       <button class="btn btn-primary" id="export-layout" type="button">Download JSON</button>
       <button class="btn btn-ghost" id="reset-layout" type="button">Reset</button>
     </nav>
@@ -31,7 +34,7 @@
       <section class="builder-section">
         <div class="section-heading">
           <div><p class="eyebrow">SHARED ENVELOPE</p><h2>Building dimensions</h2></div>
-          <span class="unit-label">METRES</span>
+          <button class="panel-move" type="button" aria-label="Drag building panel; double-click to dock" title="Drag to move; double-click to dock">Move</button>
         </div>
         <div class="field-grid">
           <label for="footprint-width">Width
@@ -97,6 +100,7 @@
       <section class="builder-section spaces-section">
         <div class="section-heading">
           <div><p class="eyebrow">ACTIVE FLOOR</p><h2>Spaces</h2></div>
+          <button class="panel-move" type="button" aria-label="Drag spaces panel; double-click to dock" title="Drag to move; double-click to dock">Move</button>
           <button class="btn btn-primary" id="add-space" type="button">+ Add space</button>
         </div>
         <ul id="room-list" class="room-list"></ul>
@@ -132,6 +136,15 @@
     </aside>
   </main>
 
+  <div id="builder-menu" class="builder-menu" role="menu" hidden></div>
+  <aside id="builder-chat" class="builder-chat" aria-label="Building assistant" hidden>
+    <header class="builder-chat-head"><h2>Building assistant</h2><button id="builder-chat-close" type="button" aria-label="Close building assistant">×</button></header>
+    <div id="builder-chat-log" class="builder-chat-log" role="log" aria-live="polite"></div>
+    <form id="builder-chat-form" class="builder-chat-form">
+      <input id="builder-chat-input" type="text" maxlength="180" autocomplete="off" placeholder="Add a 6 by 4 meeting room called Orion on floor 2" aria-label="Building instruction" />
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </aside>
   <div id="builder-toast" class="toast hidden" role="status"></div>
   <script type="module" src="js/app/builder.js"></script>
 </body>

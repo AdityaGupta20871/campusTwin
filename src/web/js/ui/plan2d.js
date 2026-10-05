@@ -11,7 +11,7 @@ const MAX_ZOOM = 8;
  */
 let planSeq = 0;
 
-export function createPlan2D(container, model, { onPick = () => {} } = {}) {
+export function createPlan2D(container, model, { onPick = () => {}, onMoveRoom = null } = {}) {
   const uid = `pl${++planSeq}`;
   const { width: W, depth: D } = model.building.footprint;
   const hw = W / 2;
@@ -184,13 +184,21 @@ export function createPlan2D(container, model, { onPick = () => {} } = {}) {
 
   let drag = null;
   svg.addEventListener("pointerdown", (e) => {
-    drag = { x: e.clientX, y: e.clientY, start: toWorld(e.clientX, e.clientY), moved: false, view: { ...view } };
+    const room = onMoveRoom && e.button === 0 ? e.target.closest?.("[data-room-id]") : null;
+    drag = { x: e.clientX, y: e.clientY, start: toWorld(e.clientX, e.clientY), moved: false, view: { ...view }, room };
     svg.setPointerCapture(e.pointerId);
   });
   svg.addEventListener("pointermove", (e) => {
     if (!drag) return;
     if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 4) drag.moved = true;
     if (!drag.moved) return;
+    if (drag.room) {
+      const point = toWorld(e.clientX, e.clientY);
+      const dx = point.x - drag.start.x;
+      const dz = point.y - drag.start.y;
+      drag.room.setAttribute("transform", `translate(${dx} ${dz})`);
+      return;
+    }
     const m = svg.getScreenCTM();
     if (!m) return;
     view = { ...drag.view, x: drag.view.x - (e.clientX - drag.x) / m.a, y: drag.view.y - (e.clientY - drag.y) / m.d };
@@ -199,8 +207,15 @@ export function createPlan2D(container, model, { onPick = () => {} } = {}) {
   });
   svg.addEventListener("pointerup", (e) => {
     const wasDrag = drag?.moved;
+    const room = drag?.room;
+    const start = drag?.start;
     drag = null;
     svg.classList.remove("panning");
+    if (wasDrag && room) {
+      const point = toWorld(e.clientX, e.clientY);
+      onMoveRoom(room.dataset.roomId, point.x - start.x, point.y - start.y);
+      return;
+    }
     if (wasDrag) return;
     const hit = document.elementFromPoint(e.clientX, e.clientY)?.closest?.("[data-room-id]");
     onPick(hit ? hit.dataset.roomId : null);
